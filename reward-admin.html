@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>TOSM Admin — Reward Manager</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&family=Trirong:wght@400;600;700&display=swap" rel="stylesheet"/>
+<style>
+/* ── CHANGE PASSWORD IN THE SCRIPT BELOW ────────────────────────────────── */
+:root{
+  --teal:#014D4B;--viridian:#40826D;--gold:#C9AF79;--gold-soft:#E7D6A8;
+  --gold-dk:#A08C55;--ivory:#FFFDF5;--ivory-2:#F4F0E4;--walnut:#2A2219;--walnut-lt:#4A3C2E;
+  --red:#C0392B;--blue:#0284C7;--amber:#D97706;--purple:#7C3AED;
+  --green:#16A34A;
+  --sidebar-w:220px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Sarabun',sans-serif;color:var(--walnut);background:var(--ivory);min-height:100vh}
+
+/* PASSWORD SCREEN */
+#pwScreen{
+  position:fixed;inset:0;background:linear-gradient(160deg,var(--teal),var(--viridian));
+  display:flex;align-items:center;justify-content:center;z-index:999;
+}
+.pw-card{
+  background:var(--ivory);border:2px solid var(--gold);border-radius:16px;
+  padding:36px 40px;width:360px;max-width:90vw;text-align:center;
+  box-shadow:0 20px 60px rgba(0,0,0,0.40);
+}
+.pw-card h2{font-family:'Trirong',serif;font-weight:700;font-size:22px;color:var(--teal);margin-bottom:6px}
+.pw-card p{font-size:13px;color:var(--walnut-lt);margin-bottom:20px}
+.pw-card input{
+  width:100%;padding:10px 14px;border:1.5px solid var(--gold);border-radius:8px;
+  font-family:'Sarabun',sans-serif;font-size:15px;background:var(--ivory-2);
+  color:var(--walnut);outline:none;text-align:center;letter-spacing:3px;margin-bottom:12px;
+}
+.pw-card input:focus{border-color:var(--viridian)}
+.pw-err{color:var(--red);font-size:13px;margin-top:6px;display:none}
+.pw-err.show{display:block}
+
+/* LAYOUT */
+#app{display:none;height:100vh;flex-direction:row}
+#app.show{display:flex}
+.sidebar{
+  width:var(--sidebar-w);min-width:var(--sidebar-w);
+  background:linear-gradient(180deg,var(--teal) 0%,#0A3D3B 100%);
+  display:flex;flex-direction:column;
+  border-right:2px solid rgba(201,175,121,0.30);
+  overflow-y:auto;
+}
+.sidebar-logo{
+  padding:22px 18px 16px;border-bottom:1px solid rgba(201,175,121,0.20);text-align:center;
+}
+.sidebar-logo img{max-width:140px;height:auto;filter:drop-shadow(0 2px 6px rgba(0,0,0,0.50))}
+.sidebar-label{
+  font-size:9px;letter-spacing:3px;text-transform:uppercase;
+  color:rgba(201,175,121,0.50);margin-top:6px;
+}
+.nav-item{
+  display:flex;align-items:center;gap:10px;
+  padding:12px 18px;cursor:pointer;
+  color:rgba(231,214,168,0.70);font-weight:600;font-size:14px;
+  border-left:3px solid transparent;transition:all 0.2s;
+}
+.nav-item:hover{background:rgba(255,255,255,0.06);color:var(--gold-soft)}
+.nav-item.active{background:rgba(255,255,255,0.10);color:var(--gold-soft);border-left-color:var(--gold)}
+.nav-item .icon{font-size:16px;width:20px;text-align:center}
+.sidebar-bottom{
+  margin-top:auto;padding:16px;border-top:1px solid rgba(201,175,121,0.15);
+}
+.lock-btn{
+  width:100%;padding:9px;border-radius:8px;
+  background:rgba(255,255,255,0.07);border:1px solid rgba(201,175,121,0.25);
+  color:rgba(231,214,168,0.65);font-size:13px;cursor:pointer;transition:all 0.2s;
+  font-family:'Sarabun',sans-serif;font-weight:600;
+}
+.lock-btn:hover{background:rgba(192,57,43,0.30);border-color:var(--red);color:#fff}
+
+/* MAIN CONTENT */
+.main{flex:1;overflow-y:auto;background:var(--ivory)}
+.tab-content{display:none;padding:28px 32px;max-width:820px}
+.tab-content.active{display:block}
+.page-title{
+  font-family:'Trirong',serif;font-weight:700;font-size:24px;
+  color:var(--teal);margin-bottom:4px;
+}
+.page-sub{font-size:13px;color:var(--walnut-lt);margin-bottom:24px}
+.divider{height:1px;background:rgba(201,175,121,0.30);margin:20px 0}
+
+/* FORM ELEMENTS */
+.field{margin-bottom:16px}
+.field label{display:block;font-weight:600;font-size:13px;color:var(--walnut-lt);margin-bottom:4px}
+.field input,.field select,.field textarea{
+  width:100%;padding:9px 12px;border:1.5px solid rgba(201,175,121,0.50);
+  border-radius:8px;font-family:'Sarabun',sans-serif;font-size:14px;
+  background:var(--ivory-2);color:var(--walnut);outline:none;resize:vertical;
+}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--viridian)}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.field-row.three{grid-template-columns:1fr 1fr 1fr}
+
+/* BUTTONS */
+.btn{
+  padding:9px 20px;border-radius:8px;border:none;cursor:pointer;
+  font-family:'Sarabun',sans-serif;font-weight:600;font-size:14px;transition:all 0.2s;
+}
+.btn-primary{background:linear-gradient(135deg,var(--viridian),var(--teal));color:#fff}
+.btn-primary:hover{opacity:0.85}
+.btn-ghost{background:transparent;color:var(--walnut-lt);border:1.5px solid rgba(201,175,121,0.50)}
+.btn-ghost:hover{background:var(--ivory-2)}
+.btn-danger{background:var(--red);color:#fff}
+.btn-danger:hover{opacity:0.85}
+.btn-sm{padding:5px 12px;font-size:12px}
+.btn-full{width:100%;margin-top:8px}
+
+/* CARD */
+.card{
+  background:var(--ivory-2);border:1.5px solid rgba(201,175,121,0.35);
+  border-radius:12px;padding:18px;margin-bottom:14px;
+}
+.card-title{font-family:'Trirong',serif;font-weight:700;font-size:15px;color:var(--teal);margin-bottom:14px}
+
+/* EVENT LIST */
+.event-item{
+  background:var(--ivory-2);border:1.5px solid rgba(201,175,121,0.35);
+  border-radius:10px;padding:12px 16px;margin-bottom:10px;
+  display:flex;align-items:center;gap:10px;
+}
+.event-item.is-active{border-color:var(--viridian);background:rgba(64,130,109,0.06)}
+.active-badge{
+  font-size:11px;padding:2px 10px;border-radius:12px;
+  background:var(--viridian);color:#fff;flex-shrink:0;
+}
+
+/* VISIBILITY BADGE */
+.vis-badge{
+  font-size:11px;padding:2px 9px;border-radius:12px;flex-shrink:0;
+  font-weight:600;
+}
+.vis-badge.on {background:rgba(64,130,109,0.18);color:var(--viridian);border:1px solid rgba(64,130,109,0.35)}
+.vis-badge.off{background:rgba(192,57,43,0.12);color:var(--red);border:1px solid rgba(192,57,43,0.25)}
+
+/* EDITABLE EVENT NAME */
+.ev-name-input{
+  flex:1;font-family:'Trirong',serif;font-weight:600;font-size:15px;
+  color:var(--walnut);background:transparent;
+  border:none;border-bottom:1.5px dashed rgba(201,175,121,0.40);
+  outline:none;padding:2px 4px;min-width:0;cursor:text;
+}
+.ev-name-input:focus{
+  border-bottom-color:var(--viridian);
+  background:rgba(64,130,109,0.05);
+  border-radius:4px 4px 0 0;
+}
+
+/* CHANNEL COLOR PREVIEW */
+.channel-preview{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:4px 12px;border-radius:14px;color:#fff;font-weight:600;font-size:13px;
+  margin-top:6px;
+}
+
+/* STATUS PRESETS */
+.status-presets{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.status-preset-btn{
+  padding:7px 14px;border-radius:8px;border:2px solid transparent;
+  cursor:pointer;font-family:'Sarabun',sans-serif;font-weight:600;font-size:13px;
+  transition:all 0.2s;color:#fff;opacity:0.75;
+}
+.status-preset-btn:hover{opacity:1;transform:translateY(-1px)}
+.status-preset-btn.active{opacity:1;border-color:rgba(255,255,255,0.50);box-shadow:0 3px 8px rgba(0,0,0,0.20)}
+.status-preset-success{background:#15803D}
+.status-preset-pending{background:#B45309}
+.status-preset-error  {background:#B91C1C}
+
+/* WINNER ROW EDITOR */
+.winner-editor-row{
+  background:var(--ivory-2);border:1px solid rgba(201,175,121,0.30);
+  border-radius:9px;padding:10px 12px;margin-bottom:8px;
+}
+.winner-editor-row .row-label{font-size:11px;color:var(--gold-dk);margin-bottom:6px}
+.winner-editor-row .inputs{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.winner-editor-row .inputs .full{grid-column:1/-1}
+.winner-editor-row input{
+  width:100%;padding:7px 10px;border:1px solid rgba(201,175,121,0.40);
+  border-radius:6px;font-size:13px;background:#fff;color:var(--walnut);outline:none;
+}
+.winner-editor-row input:focus{border-color:var(--viridian)}
+
+/* GOOGLE SHEETS SECTION */
+.sheets-card{
+  background:rgba(64,130,109,0.05);
+  border:1.5px solid rgba(64,130,109,0.25);
+  border-radius:10px;padding:16px;margin-bottom:16px;
+}
+.sheets-card .card-title{color:var(--viridian)}
+.col-map-row{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;margin-bottom:12px}
+.col-map-row .field{margin-bottom:0;flex:1;min-width:80px}
+.col-map-row .field input{padding:7px 10px;font-size:13px}
+.col-map-row .field.wide{flex:2}
+.sheets-msg{font-size:13px;margin-top:10px;line-height:1.6}
+
+/* CSV DROP ZONE */
+.csv-drop-zone{
+  border:2px dashed rgba(64,130,109,0.45);
+  border-radius:12px;padding:32px 24px;text-align:center;
+  cursor:pointer;transition:all 0.2s;margin-bottom:16px;
+  background:rgba(64,130,109,0.04);color:var(--walnut-lt);
+}
+.csv-drop-zone:hover,.csv-drop-zone.drag-over{
+  border-color:var(--viridian);background:rgba(64,130,109,0.10);
+  color:var(--walnut);
+}
+.csv-drop-zone .drop-icon{font-size:36px;margin-bottom:8px}
+.csv-drop-zone .drop-hint{font-weight:600;font-size:14px;margin-bottom:4px}
+.csv-drop-zone .drop-sub{font-size:12px;opacity:0.65}
+
+/* CSV HELP */
+.csv-box{
+  background:rgba(64,130,109,0.07);border:1px solid rgba(64,130,109,0.22);
+  border-radius:8px;padding:12px 14px;font-size:13px;color:var(--walnut-lt);
+  margin-bottom:14px;line-height:1.8;
+}
+.csv-box code{
+  background:rgba(0,0,0,0.07);padding:1px 6px;border-radius:4px;
+  font-size:12px;font-family:'Courier New',monospace;
+}
+.success-msg{color:var(--viridian);font-size:13px;margin-top:8px;display:none}
+.success-msg.show{display:block}
+
+/* TOGGLE */
+.toggle-row{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.toggle{position:relative;width:44px;height:24px;flex-shrink:0}
+.toggle input{opacity:0;width:0;height:0}
+.toggle-slider{
+  position:absolute;inset:0;border-radius:24px;
+  background:rgba(201,175,121,0.30);cursor:pointer;transition:0.3s;
+}
+.toggle-slider::before{
+  content:"";position:absolute;height:18px;width:18px;left:3px;bottom:3px;
+  border-radius:50%;background:#fff;transition:0.3s;
+}
+.toggle input:checked+.toggle-slider{background:var(--viridian)}
+.toggle input:checked+.toggle-slider::before{transform:translateX(20px)}
+.toggle-label{font-weight:600;font-size:14px;color:var(--walnut-lt)}
+</style>
+</head>
+<body>
+
+<!-- PASSWORD SCREEN -->
+<div id="pwScreen">
+  <div class="pw-card">
+    <h2>🔐 TOSM Admin</h2>
+    <p>Reward Announcement Manager<br/>กรุณาใส่รหัสผ่านเพื่อเข้าใช้งาน</p>
+    <input type="password" id="pwInput" placeholder="รหัสผ่าน" autofocus/>
+    <button class="btn btn-primary btn-full" onclick="tryLogin()">เข้าสู่ระบบ</button>
+    <div class="pw-err" id="pwErr">รหัสผ่านไม่ถูกต้อง</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <img src="./tosm-logo.png" alt="TOSM Extreme"/>
+      <div class="sidebar-label">Admin Panel</div>
+    </div>
+    <nav>
+      <div class="nav-item active" data-tab="events"><span class="icon">📋</span>กิจกรรม</div>
+      <div class="nav-item" data-tab="winners"><span class="icon">🏆</span>รายชื่อผู้ได้รางวัล</div>
+      <div class="nav-item" data-tab="rewards"><span class="icon">🎁</span>ของรางวัล</div>
+      <div class="nav-item" data-tab="import"><span class="icon">📥</span>นำเข้า CSV</div>
+    </nav>
+    <div class="sidebar-bottom">
+      <button class="lock-btn" onclick="lockAdmin()">🔒 ล็อกระบบ</button>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main">
+
+    <!-- TAB: EVENTS -->
+    <div class="tab-content active" id="tab-events">
+      <div class="page-title">จัดการกิจกรรม</div>
+      <div class="page-sub">เพิ่ม / ลบ / แก้ไขกิจกรรม และตั้งค่าการแสดงผล</div>
+
+      <div id="eventList"></div>
+
+      <div class="card">
+        <div class="card-title">➕ เพิ่มกิจกรรมใหม่</div>
+        <div class="field"><label>ชื่อกิจกรรม</label><input type="text" id="newEvName" placeholder="เช่น Summer Drop 2026"/></div>
+        <button class="btn btn-primary" onclick="addEvent()">+ เพิ่มกิจกรรม</button>
+      </div>
+
+      <div class="divider"></div>
+      <div class="card-title">⚙️ ตั้งค่ากิจกรรมที่กำลังแสดง</div>
+      <div id="eventSettings"></div>
+    </div>
+
+    <!-- TAB: WINNERS -->
+    <div class="tab-content" id="tab-winners">
+      <div class="page-title">รายชื่อผู้ได้รางวัล</div>
+      <div class="page-sub">แก้ไขชื่อ Facebook, AID และรางวัล</div>
+      <div class="field"><label>เลือกกิจกรรม</label><select id="winnerEvSel" onchange="loadWinnerEditor()"></select></div>
+
+      <div class="card-title" style="margin-bottom:10px">🍀 รายชื่อผู้โชคดี (Lucky Draw)</div>
+      <div id="luckyEditor"></div>
+      <button class="btn btn-ghost btn-full" onclick="addWinnerRow('lucky')">+ เพิ่มแถว</button>
+
+      <div class="divider"></div>
+      <div class="card-title" style="margin-bottom:10px">🎯 รายชื่อผู้ได้รับรางวัล (Condition)</div>
+      <div id="condEditor"></div>
+      <button class="btn btn-ghost btn-full" onclick="addWinnerRow('cond')">+ เพิ่มแถว</button>
+
+      <div class="divider"></div>
+      <button class="btn btn-primary" onclick="saveWinners()">💾 บันทึกรายชื่อ</button>
+    </div>
+
+    <!-- TAB: REWARDS -->
+    <div class="tab-content" id="tab-rewards">
+      <div class="page-title">ของรางวัลในกิจกรรม</div>
+      <div class="page-sub">จัดการชุดรางวัลและรายการไอเทม</div>
+      <div class="field"><label>เลือกกิจกรรม</label><select id="rewardEvSel" onchange="loadRewardEditor()"></select></div>
+
+      <!-- GOOGLE SHEETS IMPORT -->
+      <div class="sheets-card">
+        <div class="card-title">📊 นำเข้าจาก Google Sheets</div>
+        <div style="background:rgba(201,175,121,0.12);border:1px solid rgba(201,175,121,0.40);border-radius:8px;padding:10px 12px;font-size:12px;color:var(--walnut-lt);margin-bottom:12px;line-height:1.7">
+          <strong>วิธีเปิด Sheet:</strong> File → Share → <strong>Publish to web</strong> → เลือก Sheet → Format: <strong>CSV</strong> → กด Publish<br/>
+          แล้ว Copy URL ในหน้าแก้ไขปกติ (ไม่ต้องใช้ URL ที่ Publish ให้) มาวางด้านล่าง
+        </div>
+        <div class="field">
+          <label>URL ของ Google Sheet</label>
+          <input type="text" id="sheetsUrl" placeholder="https://docs.google.com/spreadsheets/d/.../edit"/>
+        </div>
+        <div class="col-map-row">
+          <div class="field"><label>คอลัมน์ชื่อไอเทม</label><input type="text" id="sheetColName" value="A" maxlength="2" style="text-transform:uppercase"/></div>
+          <div class="field"><label>คอลัมน์จำนวน</label><input type="text" id="sheetColAmt" value="B" maxlength="2" style="text-transform:uppercase"/></div>
+          <div class="field"><label>คอลัมน์ URL รูป</label><input type="text" id="sheetColImg" value="C" maxlength="2" style="text-transform:uppercase"/></div>
+          <div class="field wide"><label>ใส่ลงชุดที่</label><select id="sheetTargetSet"></select></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer">
+            <input type="checkbox" id="sheetSkipHeader" checked style="width:auto"/> ข้ามแถว Header
+          </label>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="fetchFromSheets()">📥 ดึงข้อมูลจาก Sheet</button>
+        <div class="sheets-msg" id="sheetsMsg"></div>
+      </div>
+
+      <div id="rewardSetsEditor"></div>
+      <button class="btn btn-ghost btn-full" onclick="addRewardSet()">+ เพิ่มชุดรางวัล</button>
+      <div class="divider"></div>
+      <button class="btn btn-primary" onclick="saveRewards()">💾 บันทึกของรางวัล</button>
+    </div>
+
+    <!-- TAB: IMPORT CSV -->
+    <div class="tab-content" id="tab-import">
+      <div class="page-title">นำเข้าข้อมูลจาก CSV</div>
+      <div class="page-sub">วางหรือลากไฟล์ CSV เพื่อนำเข้ารายชื่อผู้ได้รับรางวัล</div>
+      <div class="field"><label>เลือกกิจกรรม</label><select id="importEvSel"></select></div>
+
+      <!-- DRAG & DROP ZONE -->
+      <div class="csv-drop-zone" id="csvDropZone">
+        <div class="drop-icon">📂</div>
+        <div class="drop-hint" id="csvDropHint">ลากไฟล์ CSV มาวางที่นี่</div>
+        <div class="drop-sub">หรือคลิกเพื่อเลือกไฟล์ (.csv)</div>
+        <input type="file" id="csvFileInput" accept=".csv,.txt" style="display:none" onclick="event.stopPropagation()"/>
+      </div>
+
+      <div class="csv-box">
+        <strong>รูปแบบ CSV:</strong><br/>
+        Header: <code>type,name,aid,reward</code><br/>
+        <code>type</code> = <code>lucky</code> หรือ <code>condition</code><br/><br/>
+        <strong>ตัวอย่าง:</strong><br/>
+        <code>lucky,กิ*****งค์,123456789,รางวัล ชุด A</code><br/>
+        <code>condition,สม*****ใจ,987654321,รางวัล ชุด B</code><br/><br/>
+        ⚠️ การนำเข้าจะ <strong>แทนที่ข้อมูลเดิมทั้งหมด</strong>
+      </div>
+      <div class="field"><label>หรือวางข้อมูล CSV โดยตรงที่นี่</label>
+        <textarea id="csvInput" rows="10" placeholder="type,name,aid,reward&#10;lucky,xx*****xx,123456789,รางวัล ชุด A&#10;condition,xx*****xx,987654321,รางวัล ชุด B"></textarea>
+      </div>
+      <button class="btn btn-primary" onclick="importCsv()">📥 นำเข้าข้อมูล</button>
+      <div class="success-msg" id="importMsg"></div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+// ── CHANGE PASSWORD HERE ──────────────────────────────────────────────────
+const ADMIN_PASSWORD = 'TOSM2026';
+// ─────────────────────────────────────────────────────────────────────────
+
+const STORAGE_KEY = 'tosm_reward_data_v2';
+
+const DEFAULT_DATA = {
+  activeEventId:'popo-o-drop',
+  events:[{
+    id:'popo-o-drop', name:'Popo O Drop',
+    deliveryDate:'29/05/26',
+    rewardChannel:'กล่องจดหมายในเกม',
+    rewardChannelInstructions:'ทีมงานจะส่งรางวัลเข้า AID ของผู้ได้รับรางวัลโดยตรงผ่านระบบเกม\nกรุณาตรวจสอบ AID ของท่านในคลังไอเทมหลังจากได้รับการแจ้งเตือน\nหากไม่ได้รับรางวัลภายใน 7 วันทำการ กรุณาติดต่อทีมงานผ่านช่องทางอย่างเป็นทางการ\nทีมงานขอสงวนสิทธิ์ในการตรวจสอบและยืนยันตัวตนก่อนจัดส่ง',
+    showLuckyDraw:true, luckyPerPage:5, conditionPerPage:10,
+    status:'กำลังดำเนินการ', statusType:'pending',
+    statusDesc:'ขณะนี้ทีมงานกำลังดำเนินการจัดส่งรางวัลให้ผู้ได้รับรางวัลทุกท่าน\nสถานะจะอัปเดตเมื่อการจัดส่งเสร็จสมบูรณ์',
+    luckyDraw:[
+      {name:'xx*****xx',aid:'',reward:'รางวัล ชุด A'},
+      {name:'xx*****xx',aid:'',reward:'รางวัล ชุด A'},
+      {name:'xx*****xx',aid:'',reward:'รางวัล ชุด A'}
+    ],
+    conditionWinners:[
+      {name:'xx*****xx',aid:'',reward:'รางวัล ชุด B'},
+      {name:'xx*****xx',aid:'',reward:'รางวัล ชุด B'},
+      {name:'xx*****xx',aid:'',reward:'รางวัล ชุด B'},
+      {name:'xx*****xx',aid:'',reward:'รางวัล ชุด B'},
+      {name:'xx*****xx',aid:'',reward:'รางวัล ชุด B'}
+    ],
+    rewardSets:[
+      {label:'รางวัล ชุด A',labelEn:'Reward Set A',items:[
+        {name:'God Coin',   amount:'×5', img:'https://cdn.exe.in.th/marketing/tosm/images/Web_item/God_Coin.png'},
+        {name:'Fellow Coin',amount:'×5', img:'https://cdn.exe.in.th/marketing/tosm/images/Web_item/Fellow_Coin.png'},
+        {name:'Kupole Coin',amount:'×5', img:'https://cdn.exe.in.th/marketing/tosm/images/Web_item/Kupole_Coin.png'}
+      ]},
+      {label:'รางวัล ชุด B',labelEn:'Reward Set B',items:[
+        {name:'Fellow Ticket',    amount:'×10',img:'https://cdn.exe.in.th/marketing/tosm/images/item_icon/fellow_ticket.png'},
+        {name:'God Fellow Ticket',amount:'×10',img:'https://cdn.exe.in.th/marketing/tosm/images/item_icon/god_fellow_ticket.png'},
+        {name:'Kupole Ticket',    amount:'×10',img:'https://cdn.exe.in.th/marketing/tosm/images/item_icon/kupole_ticket.png'}
+      ]}
+    ]
+  }]
+};
+
+let data = (() => {
+  try { const s = localStorage.getItem(STORAGE_KEY); return s ? JSON.parse(s) : JSON.parse(JSON.stringify(DEFAULT_DATA)); }
+  catch(e) { return JSON.parse(JSON.stringify(DEFAULT_DATA)); }
+})();
+
+function save() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch(e) {} }
+function getEv(id) { return data.events.find(e=>e.id===(id||data.activeEventId)) || data.events[0]; }
+function getSelEv(selId) { return getEv(document.getElementById(selId).value); }
+
+// ── AUTH ─────────────────────────────────────────────────────────────────
+function tryLogin() {
+  if (document.getElementById('pwInput').value === ADMIN_PASSWORD) {
+    document.getElementById('pwScreen').style.display='none';
+    document.getElementById('app').classList.add('show');
+    initAdmin();
+  } else {
+    document.getElementById('pwErr').classList.add('show');
+    document.getElementById('pwInput').value='';
+    document.getElementById('pwInput').focus();
+  }
+}
+document.getElementById('pwInput').addEventListener('keydown',e=>{ if(e.key==='Enter') tryLogin(); });
+
+function lockAdmin() {
+  document.getElementById('app').classList.remove('show');
+  document.getElementById('pwScreen').style.display='flex';
+  document.getElementById('pwInput').value='';
+}
+
+// ── TABS ──────────────────────────────────────────────────────────────────
+document.querySelectorAll('.nav-item').forEach(item=>{
+  item.addEventListener('click',()=>{
+    document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+    item.classList.add('active');
+    document.getElementById('tab-'+item.dataset.tab).classList.add('active');
+    refreshTab(item.dataset.tab);
+  });
+});
+function refreshTab(tab) {
+  if(tab==='winners') { populateSels(); loadWinnerEditor(); }
+  if(tab==='rewards') { populateSels(); loadRewardEditor(); }
+  if(tab==='import')  { populateSels(); }
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────
+function initAdmin() {
+  renderEventList();
+  renderEventSettings();
+  populateSels();
+  initCsvDrop();
+}
+
+function populateSels() {
+  ['winnerEvSel','rewardEvSel','importEvSel'].forEach(id=>{
+    const sel = document.getElementById(id); if(!sel) return;
+    const cur = sel.value;
+    sel.innerHTML = data.events.map(e=>`<option value="${e.id}">${e.name}</option>`).join('');
+    if(data.events.find(e=>e.id===cur)) sel.value=cur;
+    else sel.value = data.activeEventId;
+  });
+}
+
+// ── EVENTS TAB ────────────────────────────────────────────────────────────
+function renderEventList() {
+  const list = document.getElementById('eventList');
+  list.innerHTML = '';
+  data.events.forEach(ev=>{
+    const visible = ev.visible !== false;
+    const el = document.createElement('div');
+    el.className='event-item'+(ev.id===data.activeEventId?' is-active':'');
+    el.innerHTML=`
+      <input class="ev-name-input" value="${ev.name.replace(/"/g,'&quot;')}"
+        title="คลิกเพื่อแก้ไขชื่อกิจกรรม"
+        onblur="renameEvent('${ev.id}', this.value)"
+        onkeydown="if(event.key==='Enter') this.blur()"/>
+      ${ev.id===data.activeEventId?'<span class="active-badge">กำลังแสดง</span>':''}
+      <span class="vis-badge ${visible?'on':'off'}" title="${visible?'แสดงอยู่บนหน้าเว็บ — คลิกเพื่อซ่อน':'ซ่อนอยู่ — คลิกเพื่อแสดง'}"
+        onclick="toggleEventVisibility('${ev.id}')" style="cursor:pointer">
+        ${visible?'👁 แสดง':'🙈 ซ่อน'}
+      </span>
+      <button class="btn btn-ghost btn-sm" onclick="setActiveEvent('${ev.id}')">ตั้งค่าหลัก</button>
+      ${data.events.length>1?`<button class="btn btn-danger btn-sm" onclick="deleteEvent('${ev.id}')">✕</button>`:''}`;
+    list.appendChild(el);
+  });
+}
+
+function toggleEventVisibility(id) {
+  const ev = getEv(id); if(!ev) return;
+  ev.visible = ev.visible === false ? true : false;
+  save(); renderEventList();
+}
+
+function renameEvent(id, name) {
+  name = name.trim();
+  if (!name) { renderEventList(); return; }
+  const ev = getEv(id);
+  if (ev && ev.name !== name) { ev.name = name; save(); renderEventList(); populateSels(); }
+}
+
+function setActiveEvent(id) {
+  data.activeEventId = id; save(); renderEventList(); renderEventSettings(); populateSels();
+}
+
+function deleteEvent(id) {
+  if(!confirm('ลบกิจกรรมนี้?')) return;
+  data.events = data.events.filter(e=>e.id!==id);
+  if(data.activeEventId===id && data.events.length) data.activeEventId=data.events[0].id;
+  save(); renderEventList(); renderEventSettings(); populateSels();
+}
+
+function addEvent() {
+  const name = document.getElementById('newEvName').value.trim();
+  if(!name) return alert('กรุณาใส่ชื่อกิจกรรม');
+  const id = 'ev-'+Date.now();
+  data.events.push({id,name,deliveryDate:'',rewardChannel:'กล่องจดหมายในเกม',
+    rewardChannelInstructions:'',showLuckyDraw:true,luckyPerPage:5,conditionPerPage:10,
+    status:'กำลังดำเนินการ',statusType:'pending',statusDesc:'',
+    visible:true,luckyDraw:[],conditionWinners:[],rewardSets:[]});
+  document.getElementById('newEvName').value='';
+  save(); renderEventList(); renderEventSettings(); populateSels();
+}
+
+function renderEventSettings() {
+  const ev = getEv();
+  if(!ev) return;
+  const st = ev.statusType || 'pending';
+  const s = document.getElementById('eventSettings');
+  s.innerHTML=`
+  <div class="card">
+    <div class="card-title">📅 วันจัดส่งและช่องทางรับรางวัล — ${ev.name}</div>
+    <div class="field-row">
+      <div class="field"><label>วันจัดส่ง (DD/MM/YY)</label>
+        <input type="text" id="evDate" value="${ev.deliveryDate||''}" placeholder="29/05/26"/></div>
+      <div class="field"><label>ช่องทางการรับรางวัล</label>
+        <select id="evChannel" onchange="previewChannel()">
+          <option value="กล่องจดหมายในเกม" ${ev.rewardChannel==='กล่องจดหมายในเกม'?'selected':''}>📬 กล่องจดหมายในเกม</option>
+          <option value="โค้ด" ${ev.rewardChannel==='โค้ด'?'selected':''}>🎫 โค้ด</option>
+          <option value="เว็บไซต์" ${ev.rewardChannel==='เว็บไซต์'?'selected':''}>🌐 เว็บไซต์</option>
+        </select>
+        <div id="channelPreview" class="channel-preview" style="display:inline-flex"></div>
+      </div>
+    </div>
+    <div class="field"><label>ข้อความคำแนะนำช่องทางรับรางวัล (แต่ละบรรทัด = 1 bullet)</label>
+      <textarea id="evChannelInstr" rows="4">${ev.rewardChannelInstructions||''}</textarea></div>
+
+    <div class="divider"></div>
+
+    <div class="card-title" style="margin-bottom:10px">📦 สถานะการจัดส่ง</div>
+    <div class="status-presets">
+      <button class="status-preset-btn status-preset-success ${st==='success'?'active':''}"
+        data-type="success" onclick="applyStatusPreset('จัดส่งสำเร็จ','success')">✓ จัดส่งสำเร็จ</button>
+      <button class="status-preset-btn status-preset-pending ${st==='pending'?'active':''}"
+        data-type="pending" onclick="applyStatusPreset('อยู่ระหว่างการจัดส่ง','pending')">⏳ อยู่ระหว่างการจัดส่ง</button>
+      <button class="status-preset-btn status-preset-error ${st==='error'?'active':''}"
+        data-type="error" onclick="applyStatusPreset('เกิดปัญหาในการจัดส่ง','error')">⚠️ เกิดปัญหาในการจัดส่ง</button>
+    </div>
+    <input type="hidden" id="evStatusType" value="${st}"/>
+    <div class="field-row">
+      <div class="field"><label>ข้อความสถานะ (แก้ไขได้)</label>
+        <input type="text" id="evStatusText" value="${ev.status||''}" placeholder="เช่น กำลังดำเนินการ"/></div>
+    </div>
+    <div class="field"><label>คำอธิบายสถานะ</label>
+      <textarea id="evStatusDesc" rows="3">${ev.statusDesc||''}</textarea></div>
+
+    <div class="divider"></div>
+
+    <div class="field-row three">
+      <div class="field"><label>Lucky Draw</label>
+        <div class="toggle-row"><label class="toggle"><input type="checkbox" id="evShowLucky" ${ev.showLuckyDraw?'checked':''}/><span class="toggle-slider"></span></label><span class="toggle-label">แสดง/ซ่อน</span></div>
+      </div>
+      <div class="field"><label>จำนวนต่อหน้า (Lucky)</label>
+        <select id="evLuckyPP">
+          <option value="5"  ${ev.luckyPerPage==5 ?'selected':''}>5</option>
+          <option value="10" ${ev.luckyPerPage==10?'selected':''}>10</option>
+        </select>
+      </div>
+      <div class="field"><label>จำนวนต่อหน้า (Condition)</label>
+        <select id="evCondPP">
+          <option value="10" ${ev.conditionPerPage==10?'selected':''}>10</option>
+          <option value="15" ${ev.conditionPerPage==15?'selected':''}>15</option>
+          <option value="20" ${ev.conditionPerPage==20?'selected':''}>20</option>
+        </select>
+      </div>
+    </div>
+    <button class="btn btn-primary" onclick="saveEventSettings()">💾 บันทึกการตั้งค่า</button>
+  </div>`;
+  previewChannel();
+}
+
+function applyStatusPreset(text, type) {
+  document.getElementById('evStatusText').value = text;
+  document.getElementById('evStatusType').value = type;
+  document.querySelectorAll('.status-preset-btn').forEach(b => b.classList.remove('active'));
+  const btn = document.querySelector(`.status-preset-btn[data-type="${type}"]`);
+  if(btn) btn.classList.add('active');
+}
+
+function previewChannel() {
+  const colors = {'กล่องจดหมายในเกม':'#0284C7','โค้ด':'#D97706','เว็บไซต์':'#7C3AED'};
+  const icons  = {'กล่องจดหมายในเกม':'📬','โค้ด':'🎫','เว็บไซต์':'🌐'};
+  const ch = document.getElementById('evChannel').value;
+  const el = document.getElementById('channelPreview');
+  if(!el) return;
+  el.style.background = colors[ch]||'#0284C7';
+  el.textContent = (icons[ch]||'📬')+' '+ch;
+}
+
+function saveEventSettings() {
+  const ev = getEv();
+  ev.deliveryDate            = document.getElementById('evDate').value.trim();
+  ev.rewardChannel           = document.getElementById('evChannel').value;
+  ev.rewardChannelInstructions = document.getElementById('evChannelInstr').value.trim();
+  ev.showLuckyDraw           = document.getElementById('evShowLucky').checked;
+  ev.luckyPerPage            = +document.getElementById('evLuckyPP').value;
+  ev.conditionPerPage        = +document.getElementById('evCondPP').value;
+  ev.status                  = document.getElementById('evStatusText').value.trim();
+  ev.statusType              = document.getElementById('evStatusType').value || 'pending';
+  ev.statusDesc              = document.getElementById('evStatusDesc').value.trim();
+  save(); alert('บันทึกการตั้งค่าเรียบร้อย ✓');
+}
+
+// ── WINNERS TAB ───────────────────────────────────────────────────────────
+function loadWinnerEditor() {
+  const ev = getSelEv('winnerEvSel'); if(!ev) return;
+  renderWinnerRows('luckyEditor', ev.luckyDraw||[], 'lucky');
+  renderWinnerRows('condEditor', ev.conditionWinners||[], 'cond');
+}
+
+function renderWinnerRows(containerId, rows, type) {
+  const c = document.getElementById(containerId); c.innerHTML='';
+  rows.forEach((row,i)=>{
+    const d = document.createElement('div'); d.className='winner-editor-row';
+    d.innerHTML=`<div class="row-label">${type==='lucky'?'ผู้โชคดี':'ผู้ได้รับรางวัล'} #${i+1}</div>
+      <div class="inputs">
+        <div><input type="text" placeholder="ชื่อ Facebook" value="${row.name}" data-f="name" data-i="${i}" data-t="${type}"/></div>
+        <div><input type="text" placeholder="AID" value="${row.aid}" data-f="aid" data-i="${i}" data-t="${type}"/></div>
+        <div class="full"><input type="text" placeholder="รางวัล" value="${row.reward}" data-f="reward" data-i="${i}" data-t="${type}"/></div>
+      </div>
+      <button class="btn btn-danger btn-sm" style="margin-top:6px" onclick="removeWinnerRow(${i},'${type}')">ลบ</button>`;
+    c.appendChild(d);
+  });
+}
+
+function addWinnerRow(type) {
+  const ev = getSelEv('winnerEvSel'); if(!ev) return;
+  if(type==='lucky') ev.luckyDraw.push({name:'xx*****xx',aid:'',reward:''});
+  else ev.conditionWinners.push({name:'xx*****xx',aid:'',reward:''});
+  renderWinnerRows(type==='lucky'?'luckyEditor':'condEditor', type==='lucky'?ev.luckyDraw:ev.conditionWinners, type);
+}
+
+function removeWinnerRow(i, type) {
+  const ev = getSelEv('winnerEvSel'); if(!ev) return;
+  if(type==='lucky') ev.luckyDraw.splice(i,1);
+  else ev.conditionWinners.splice(i,1);
+  renderWinnerRows(type==='lucky'?'luckyEditor':'condEditor', type==='lucky'?ev.luckyDraw:ev.conditionWinners, type);
+}
+
+function saveWinners() {
+  const ev = getSelEv('winnerEvSel'); if(!ev) return;
+  ['luckyEditor','condEditor'].forEach((cid,ci)=>{
+    const type=ci===0?'lucky':'cond';
+    const list=ci===0?ev.luckyDraw:ev.conditionWinners;
+    document.querySelectorAll(`#${cid} input[data-f]`).forEach(inp=>{
+      if(list[+inp.dataset.i]) list[+inp.dataset.i][inp.dataset.f]=inp.value;
+    });
+  });
+  save(); alert('บันทึกรายชื่อเรียบร้อย ✓');
+}
+
+// ── REWARDS TAB ───────────────────────────────────────────────────────────
+function loadRewardEditor() {
+  const ev = getSelEv('rewardEvSel'); if(!ev) return;
+  // Populate target set selector
+  const tsel = document.getElementById('sheetTargetSet');
+  if(tsel) {
+    tsel.innerHTML = `<option value="-1">+ สร้างชุดใหม่</option>`
+      + (ev.rewardSets||[]).map((s,i)=>`<option value="${i}">ชุด ${String.fromCharCode(65+i)}: ${s.label}</option>`).join('');
+  }
+  const c = document.getElementById('rewardSetsEditor'); c.innerHTML='';
+  (ev.rewardSets||[]).forEach((set,si)=>{
+    const card = document.createElement('div'); card.className='card';
+    card.innerHTML=`<div class="card-title">ชุด ${String.fromCharCode(65+si)}: <input type="text" value="${set.label}" id="setLabel${si}" style="border:1px solid rgba(201,175,121,0.50);padding:3px 8px;border-radius:6px;font-size:14px;width:180px"/> &nbsp; <input type="text" value="${set.labelEn}" id="setLabelEn${si}" style="border:1px solid rgba(201,175,121,0.50);padding:3px 8px;border-radius:6px;font-size:13px;width:160px;color:var(--walnut-lt)"/>
+      <button class="btn btn-danger btn-sm" style="float:right" onclick="removeRewardSet(${si})">ลบชุดนี้</button></div>
+      <div id="setItems${si}"></div>
+      <button class="btn btn-ghost btn-sm btn-full" onclick="addRewardItem(${si})">+ เพิ่มไอเทม</button>`;
+    c.appendChild(card);
+    renderSetItems(si, set.items||[]);
+  });
+}
+
+function renderSetItems(si, items) {
+  const c = document.getElementById(`setItems${si}`); c.innerHTML='';
+  items.forEach((item,ii)=>{
+    const r=document.createElement('div');r.style.cssText='display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:8px;margin-bottom:8px;align-items:center';
+    r.innerHTML=`<input type="text" value="${item.name}" id="iName${si}_${ii}" placeholder="ชื่อไอเทม" style="padding:7px 10px;border:1px solid rgba(201,175,121,0.40);border-radius:6px;font-size:13px;background:#fff"/>
+      <input type="text" value="${item.amount}" id="iAmt${si}_${ii}" placeholder="×5" style="padding:7px 10px;border:1px solid rgba(201,175,121,0.40);border-radius:6px;font-size:13px;background:#fff"/>
+      <input type="text" value="${item.img}" id="iImg${si}_${ii}" placeholder="URL รูปภาพ" style="padding:7px 10px;border:1px solid rgba(201,175,121,0.40);border-radius:6px;font-size:13px;background:#fff"/>
+      <button class="btn btn-danger btn-sm" onclick="removeRewardItem(${si},${ii})">✕</button>`;
+    c.appendChild(r);
+  });
+}
+
+// Read current DOM inputs back into data before any structural change
+function syncSetItems(si) {
+  const ev = getSelEv('rewardEvSel'); if(!ev) return;
+  const set = ev.rewardSets[si]; if(!set) return;
+  // Sync label fields
+  const lEl = document.getElementById(`setLabel${si}`);
+  const lEnEl = document.getElementById(`setLabelEn${si}`);
+  if(lEl)   set.label   = lEl.value;
+  if(lEnEl) set.labelEn = lEnEl.value;
+  // Sync item fields
+  set.items.forEach((item, ii) => {
+    const n = document.getElementById(`iName${si}_${ii}`);
+    const a = document.getElementById(`iAmt${si}_${ii}`);
+    const g = document.getElementById(`iImg${si}_${ii}`);
+    if(n) item.name   = n.value;
+    if(a) item.amount = a.value;
+    if(g) item.img    = g.value;
+  });
+}
+function syncAllSets() {
+  const ev = getSelEv('rewardEvSel'); if(!ev) return;
+  (ev.rewardSets||[]).forEach((_, si) => syncSetItems(si));
+}
+
+function addRewardItem(si) {
+  syncSetItems(si); // preserve existing values before re-render
+  const ev=getSelEv('rewardEvSel');if(!ev) return;
+  ev.rewardSets[si].items.push({name:'',amount:'×1',img:''});
+  renderSetItems(si, ev.rewardSets[si].items);
+}
+function removeRewardItem(si,ii) {
+  syncSetItems(si); // preserve existing values before re-render
+  const ev=getSelEv('rewardEvSel');if(!ev) return;
+  ev.rewardSets[si].items.splice(ii,1);
+  renderSetItems(si, ev.rewardSets[si].items);
+}
+function addRewardSet() {
+  syncAllSets(); // preserve all unsaved work before full re-render
+  const ev=getSelEv('rewardEvSel');if(!ev) return;
+  const n=ev.rewardSets.length;
+  ev.rewardSets.push({label:`รางวัล ชุด ${String.fromCharCode(65+n)}`,labelEn:`Reward Set ${String.fromCharCode(65+n)}`,items:[]});
+  loadRewardEditor();
+}
+function removeRewardSet(si) {
+  if(!confirm('ลบชุดรางวัลนี้?')) return;
+  syncAllSets();
+  const ev=getSelEv('rewardEvSel');if(!ev) return;
+  ev.rewardSets.splice(si,1);
+  loadRewardEditor();
+}
+function saveRewards() {
+  const ev=getSelEv('rewardEvSel');if(!ev) return;
+  (ev.rewardSets||[]).forEach((set,si)=>{
+    if(document.getElementById(`setLabel${si}`))   set.label  =document.getElementById(`setLabel${si}`).value;
+    if(document.getElementById(`setLabelEn${si}`)) set.labelEn=document.getElementById(`setLabelEn${si}`).value;
+    set.items.forEach((item,ii)=>{
+      if(document.getElementById(`iName${si}_${ii}`)) item.name  =document.getElementById(`iName${si}_${ii}`).value;
+      if(document.getElementById(`iAmt${si}_${ii}`))  item.amount=document.getElementById(`iAmt${si}_${ii}`).value;
+      if(document.getElementById(`iImg${si}_${ii}`))  item.img   =document.getElementById(`iImg${si}_${ii}`).value;
+    });
+  });
+  save(); alert('บันทึกของรางวัลเรียบร้อย ✓');
+}
+
+// ── GOOGLE SHEETS IMPORT ──────────────────────────────────────────────────
+async function fetchFromSheets() {
+  const url = document.getElementById('sheetsUrl').value.trim();
+  const msg = document.getElementById('sheetsMsg');
+  if (!url) { msg.innerHTML='<span style="color:var(--red)">กรุณาใส่ URL ก่อน</span>'; return; }
+
+  const match = url.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
+  if (!match) { msg.innerHTML='<span style="color:var(--red)">URL ไม่ถูกต้อง — ตรวจสอบว่าเป็น URL ของ Google Sheets</span>'; return; }
+  const sheetId = match[1];
+  const gidMatch = url.match(/[#&?]gid=(\d+)/);
+  const gid = gidMatch ? gidMatch[1] : '0';
+
+  // Use /pub?output=csv (requires sheet to be "Published to web", not just shared)
+  const pubUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/pub?output=csv&gid=${gid}`;
+  // Proxy fallback for CORS issues when opening from file://
+  const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(pubUrl)}`;
+
+  msg.innerHTML = '⏳ กำลังดึงข้อมูล...';
+
+  let text = null;
+
+  // Attempt 1: direct fetch (works if browser allows)
+  try {
+    const res = await fetch(pubUrl, { cache:'no-store' });
+    if (res.ok) { text = await res.text(); msg.innerHTML = '⏳ ประมวลผล...'; }
+  } catch(e1) { /* CORS blocked — try proxy */ }
+
+  // Attempt 2: via CORS proxy
+  if (!text) {
+    try {
+      const res = await fetch(proxyUrl, { cache:'no-store' });
+      if (res.ok) { text = await res.text(); msg.innerHTML = '⏳ ประมวลผล (via proxy)...'; }
+    } catch(e2) { /* proxy also failed */ }
+  }
+
+  if (!text) {
+    msg.innerHTML = `<span style="color:var(--red)">
+      ⚠️ ดึงข้อมูลไม่ได้ — ทำตามขั้นตอนนี้ก่อน:<br/>
+      1. เปิด Sheet → File → Share → <strong>Publish to web</strong><br/>
+      2. เลือก Sheet ที่ต้องการ → เปลี่ยน Format เป็น <strong>CSV</strong> → กด <strong>Publish</strong><br/>
+      3. กลับมาลองใหม่<br/>
+      หรือ Export CSV แล้วลากไฟล์ใน Tab "นำเข้า CSV" แทน
+    </span>`;
+    return;
+  }
+
+  // Parse CSV
+  const colIdx = s => ((s||'A').trim().toUpperCase().charCodeAt(0) - 65);
+  const nameIdx = colIdx(document.getElementById('sheetColName').value);
+  const amtIdx  = colIdx(document.getElementById('sheetColAmt').value);
+  const imgIdx  = colIdx(document.getElementById('sheetColImg').value);
+  const skip    = document.getElementById('sheetSkipHeader').checked;
+
+  const lines = text.split('\n').map(l => l.trim()).filter(l => l);
+  const items = lines.slice(skip ? 1 : 0).map(line => {
+    // Simple CSV parse (handles quoted fields)
+    const p = parseCsvLine(line);
+    return {
+      name:   (p[nameIdx]||'').trim(),
+      amount: (p[amtIdx] ||'×1').trim() || '×1',
+      img:    (p[imgIdx] ||'').trim()
+    };
+  }).filter(r => r.name);
+
+  if (!items.length) {
+    msg.innerHTML = `<span style="color:var(--red)">⚠️ ดึงข้อมูลได้แต่ไม่พบรายการ — ตรวจสอบตัวเลขคอลัมน์และการ Publish</span>`;
+    return;
+  }
+
+  const ev = getSelEv('rewardEvSel'); if(!ev) return;
+  const setIdx = +document.getElementById('sheetTargetSet').value;
+  if (setIdx === -1) {
+    const n = ev.rewardSets.length;
+    ev.rewardSets.push({label:`รางวัล ชุด ${String.fromCharCode(65+n)}`,labelEn:`Reward Set ${String.fromCharCode(65+n)}`,items});
+  } else if (ev.rewardSets[setIdx]) {
+    ev.rewardSets[setIdx].items = items;
+  }
+  save(); loadRewardEditor();
+  msg.innerHTML = `<span style="color:var(--viridian)">✓ นำเข้าสำเร็จ ${items.length} ไอเทม</span>`;
+}
+
+// Simple CSV line parser that handles quoted fields
+function parseCsvLine(line) {
+  const result = [];
+  let cur = '', inQ = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (ch === '"') { inQ = !inQ; }
+    else if (ch === ',' && !inQ) { result.push(cur); cur = ''; }
+    else { cur += ch; }
+  }
+  result.push(cur);
+  return result;
+}
+
+// ── CSV IMPORT TAB ────────────────────────────────────────────────────────
+function initCsvDrop() {
+  const zone  = document.getElementById('csvDropZone');
+  const input = document.getElementById('csvFileInput');
+
+  // Click zone → open file picker (but don't re-trigger if click came from input itself)
+  zone.addEventListener('click', e => {
+    if (e.target === input) return;
+    input.click();
+  });
+
+  // Drag highlight
+  zone.addEventListener('dragenter', e => { e.preventDefault(); e.stopPropagation(); zone.classList.add('drag-over'); });
+  zone.addEventListener('dragover',  e => { e.preventDefault(); e.stopPropagation(); zone.classList.add('drag-over'); });
+  zone.addEventListener('dragleave', e => { e.stopPropagation(); zone.classList.remove('drag-over'); });
+  zone.addEventListener('dragend',   () => zone.classList.remove('drag-over'));
+
+  // Drop file
+  zone.addEventListener('drop', e => {
+    e.preventDefault(); e.stopPropagation();
+    zone.classList.remove('drag-over');
+    const file = e.dataTransfer.files[0];
+    if (file) readCsvFile(file);
+  });
+
+  // File picker selection — reset with setTimeout so same file can be re-selected
+  input.addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (file) {
+      readCsvFile(file);
+      setTimeout(() => { input.value = ''; }, 200);
+    }
+  });
+}
+
+function readCsvFile(file) {
+  const reader = new FileReader();
+  reader.onload = e => {
+    document.getElementById('csvInput').value = e.target.result;
+    document.getElementById('csvDropHint').textContent = '✓ โหลดแล้ว: ' + file.name;
+    // Reset hint after 3s so the zone can be used again without confusion
+    setTimeout(() => {
+      document.getElementById('csvDropHint').textContent = 'ลากไฟล์ CSV มาวางที่นี่';
+    }, 3000);
+  };
+  reader.onerror = () => alert('อ่านไฟล์ไม่ได้ กรุณาลองใหม่');
+  reader.readAsText(file, 'UTF-8');
+}
+
+function importCsv() {
+  const ev=getSelEv('importEvSel');if(!ev) return;
+  const csv=document.getElementById('csvInput').value.trim();if(!csv) return;
+  const lines=csv.split('\n').map(l=>l.trim()).filter(l=>l);
+  const start=lines[0].toLowerCase().startsWith('type')?1:0;
+  const lucky=[],cond=[];
+  lines.slice(start).forEach(line=>{
+    const p=line.split(',');if(p.length<2) return;  // need at least type + name
+    const [t,name,aid,...rest]=p;
+    const row={
+      name:(name||'').trim(),
+      aid:(aid||'').trim(),
+      reward:rest.length ? rest.join(',').trim() : ''   // reward is optional
+    };
+    if(!row.name) return;  // skip blank rows
+    (t.trim().toLowerCase().startsWith('lucky')||t.trim()==='l')?lucky.push(row):cond.push(row);
+  });
+  ev.luckyDraw=lucky; ev.conditionWinners=cond;
+  save();
+  const m=document.getElementById('importMsg');
+  m.classList.add('show');
+  m.textContent=`✓ นำเข้าสำเร็จ: ${lucky.length} ผู้โชคดี, ${cond.length} ผู้ได้รับรางวัล`;
+  // Reset drop zone hint
+  document.getElementById('csvDropHint').textContent = 'ลากไฟล์ CSV มาวางที่นี่';
+}
+</script>
+</body>
+</html>
