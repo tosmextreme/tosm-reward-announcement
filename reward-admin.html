@@ -185,12 +185,41 @@ body{font-family:'Sarabun',sans-serif;color:var(--walnut);background:var(--ivory
 }
 .winner-col-head .col-icon{font-size:16px;flex-shrink:0}
 .section-name-input{
-  flex:1;font-family:'Trirong',serif;font-weight:700;font-size:15px;
+  display:block;width:100%;
+  font-family:'Trirong',serif;font-weight:700;font-size:15px;
   color:var(--teal);background:transparent;
   border:none;border-bottom:1.5px dashed rgba(201,175,121,0.35);
-  outline:none;padding:2px 4px;min-width:0;
+  outline:none;padding:2px 4px;
 }
 .section-name-input:focus{border-bottom-color:var(--viridian);background:rgba(64,130,109,0.05)}
+.section-name-en-input{
+  display:block;width:100%;margin-top:2px;
+  font-family:'Sarabun',sans-serif;font-weight:400;font-size:11px;
+  letter-spacing:2px;text-transform:uppercase;
+  color:var(--gold-dk);background:transparent;
+  border:none;border-bottom:1px dashed rgba(201,175,121,0.20);
+  outline:none;padding:1px 4px;
+}
+.section-name-en-input:focus{border-bottom-color:var(--viridian)}
+.section-name-en-input::placeholder{text-transform:none;letter-spacing:0}
+
+/* BULK REWARD ROW */
+.bulk-reward-row{
+  display:flex;gap:8px;align-items:center;
+  margin-bottom:12px;padding:10px 12px;
+  background:rgba(64,130,109,0.06);
+  border:1px dashed rgba(64,130,109,0.30);
+  border-radius:8px;
+}
+.bulk-reward-row label{
+  font-size:11px;color:var(--walnut-lt);font-weight:600;
+  white-space:nowrap;flex-shrink:0;
+}
+.bulk-reward-row input{
+  flex:1;padding:6px 10px;border:1px solid rgba(201,175,121,0.40);
+  border-radius:6px;font-size:13px;background:#fff;color:var(--walnut);outline:none;
+}
+.bulk-reward-row input:focus{border-color:var(--viridian)}
 .winner-col-count{
   font-size:11px;padding:2px 8px;border-radius:10px;
   background:rgba(64,130,109,0.12);color:var(--viridian);flex-shrink:0;font-weight:600;
@@ -355,10 +384,19 @@ body{font-family:'Sarabun',sans-serif;color:var(--walnut);background:var(--ivory
         <div class="winner-col">
           <div class="winner-col-head">
             <span class="col-icon">🍀</span>
-            <input class="section-name-input" id="luckyLabelInput" placeholder="ชื่อหัวข้อ"
-              title="คลิกเพื่อแก้ไขชื่อหัวข้อ"
-              onblur="saveSectionLabel('lucky', this.value)"/>
+            <div style="flex:1;min-width:0">
+              <input class="section-name-input" id="luckyLabelInput" placeholder="ชื่อหัวข้อ (ภาษาไทย)"
+                title="คลิกเพื่อแก้ไขชื่อหัวข้อ"
+                onblur="saveSectionLabel('lucky','th',this.value)"/>
+              <input class="section-name-en-input" id="luckyLabelEnInput" placeholder="English subtitle"
+                onblur="saveSectionLabel('lucky','en',this.value)"/>
+            </div>
             <span class="winner-col-count" id="luckyCount">0</span>
+          </div>
+          <div class="bulk-reward-row">
+            <label>รางวัลทุกคน:</label>
+            <input type="text" id="bulkLuckyReward" placeholder="พิมพ์ชื่อรางวัล แล้วกด ใส่ทั้งหมด"/>
+            <button class="btn btn-primary btn-sm" onclick="applyBulkReward('lucky')">✓ ใส่ทั้งหมด</button>
           </div>
           <div id="luckyEditor"></div>
           <button class="btn btn-ghost btn-full" style="margin-top:10px" onclick="addWinnerRow('lucky')">+ เพิ่มแถว</button>
@@ -368,10 +406,19 @@ body{font-family:'Sarabun',sans-serif;color:var(--walnut);background:var(--ivory
         <div class="winner-col">
           <div class="winner-col-head">
             <span class="col-icon">🎯</span>
-            <input class="section-name-input" id="condLabelInput" placeholder="ชื่อหัวข้อ"
-              title="คลิกเพื่อแก้ไขชื่อหัวข้อ"
-              onblur="saveSectionLabel('cond', this.value)"/>
+            <div style="flex:1;min-width:0">
+              <input class="section-name-input" id="condLabelInput" placeholder="ชื่อหัวข้อ (ภาษาไทย)"
+                title="คลิกเพื่อแก้ไขชื่อหัวข้อ"
+                onblur="saveSectionLabel('cond','th',this.value)"/>
+              <input class="section-name-en-input" id="condLabelEnInput" placeholder="English subtitle"
+                onblur="saveSectionLabel('cond','en',this.value)"/>
+            </div>
             <span class="winner-col-count" id="condCount">0</span>
+          </div>
+          <div class="bulk-reward-row">
+            <label>รางวัลทุกคน:</label>
+            <input type="text" id="bulkCondReward" placeholder="พิมพ์ชื่อรางวัล แล้วกด ใส่ทั้งหมด"/>
+            <button class="btn btn-primary btn-sm" onclick="applyBulkReward('cond')">✓ ใส่ทั้งหมด</button>
           </div>
           <div id="condEditor"></div>
           <button class="btn btn-ghost btn-full" style="margin-top:10px" onclick="addWinnerRow('cond')">+ เพิ่มแถว</button>
@@ -469,7 +516,8 @@ const DEFAULT_DATA = {
     rewardChannelInstructions:'ทีมงานจะส่งรางวัลเข้า AID ของผู้ได้รับรางวัลโดยตรงผ่านระบบเกม\nกรุณาตรวจสอบ AID ของท่านในคลังไอเทมหลังจากได้รับการแจ้งเตือน\nหากไม่ได้รับรางวัลภายใน 7 วันทำการ กรุณาติดต่อทีมงานผ่านช่องทางอย่างเป็นทางการ\nทีมงานขอสงวนสิทธิ์ในการตรวจสอบและยืนยันตัวตนก่อนจัดส่ง',
     showLuckyDraw:true, luckyPerPage:5, conditionPerPage:10,
     status:'กำลังดำเนินการ', statusType:'pending',
-    luckyDrawLabel:'รายชื่อผู้โชคดี', conditionLabel:'รายชื่อผู้ได้รับรางวัล',
+    luckyDrawLabel:'รายชื่อผู้โชคดี', luckyDrawLabelEn:'Lucky Draw Winners',
+    conditionLabel:'รายชื่อผู้ได้รับรางวัล', conditionLabelEn:'Reward Recipients',
     statusDesc:'ขณะนี้ทีมงานกำลังดำเนินการจัดส่งรางวัลให้ผู้ได้รับรางวัลทุกท่าน\nสถานะจะอัปเดตเมื่อการจัดส่งเสร็จสมบูรณ์',
     luckyDraw:[
       {name:'xx*****xx',aid:'',reward:'รางวัล ชุด A'},
@@ -620,7 +668,8 @@ function addEvent() {
   data.events.push({id,name,deliveryDate:'',rewardChannel:'กล่องจดหมายในเกม',
     rewardChannelInstructions:'',showLuckyDraw:true,luckyPerPage:5,conditionPerPage:10,
     status:'กำลังดำเนินการ',statusType:'pending',statusDesc:'',
-    luckyDrawLabel:'รายชื่อผู้โชคดี',conditionLabel:'รายชื่อผู้ได้รับรางวัล',
+    luckyDrawLabel:'รายชื่อผู้โชคดี',luckyDrawLabelEn:'Lucky Draw Winners',
+    conditionLabel:'รายชื่อผู้ได้รับรางวัล',conditionLabelEn:'Reward Recipients',
     visible:true,luckyDraw:[],conditionWinners:[],rewardSets:[]});
   document.getElementById('newEvName').value='';
   save(); renderEventList(); renderEventSettings(); populateSels();
@@ -740,20 +789,44 @@ function onWinnerSearch(val) {
 
 function loadWinnerEditor() {
   const ev = getSelEv('winnerEvSel'); if(!ev) return;
-  // Section labels
-  const ll = document.getElementById('luckyLabelInput');
-  const cl = document.getElementById('condLabelInput');
-  if(ll) ll.value = ev.luckyDrawLabel || 'รายชื่อผู้โชคดี';
-  if(cl) cl.value = ev.conditionLabel || 'รายชื่อผู้ได้รับรางวัล';
+  // Thai labels
+  const ll   = document.getElementById('luckyLabelInput');
+  const cl   = document.getElementById('condLabelInput');
+  // English subtitles
+  const lle  = document.getElementById('luckyLabelEnInput');
+  const cle  = document.getElementById('condLabelEnInput');
+  if(ll)  ll.value  = ev.luckyDrawLabel   || 'รายชื่อผู้โชคดี';
+  if(lle) lle.value = ev.luckyDrawLabelEn || 'Lucky Draw Winners';
+  if(cl)  cl.value  = ev.conditionLabel   || 'รายชื่อผู้ได้รับรางวัล';
+  if(cle) cle.value = ev.conditionLabelEn || 'Reward Recipients';
   renderWinnerRows('luckyEditor', ev.luckyDraw||[], 'lucky');
   renderWinnerRows('condEditor', ev.conditionWinners||[], 'cond');
 }
 
-function saveSectionLabel(type, value) {
+function saveSectionLabel(type, lang, value) {
   const ev = getSelEv('winnerEvSel'); if(!ev) return;
-  if(type==='lucky') ev.luckyDrawLabel = value.trim() || 'รายชื่อผู้โชคดี';
-  else               ev.conditionLabel = value.trim() || 'รายชื่อผู้ได้รับรางวัล';
+  if(type==='lucky') {
+    if(lang==='th') ev.luckyDrawLabel   = value.trim() || 'รายชื่อผู้โชคดี';
+    else            ev.luckyDrawLabelEn = value.trim() || 'Lucky Draw Winners';
+  } else {
+    if(lang==='th') ev.conditionLabel   = value.trim() || 'รายชื่อผู้ได้รับรางวัล';
+    else            ev.conditionLabelEn = value.trim() || 'Reward Recipients';
+  }
   save();
+}
+
+function applyBulkReward(type) {
+  const ev = getSelEv('winnerEvSel'); if(!ev) return;
+  const inputId = type==='lucky' ? 'bulkLuckyReward' : 'bulkCondReward';
+  const reward  = document.getElementById(inputId).value.trim();
+  if(!reward) { alert('กรุณาพิมพ์ชื่อรางวัลก่อนกด ใส่ทั้งหมด'); return; }
+  const list = type==='lucky' ? ev.luckyDraw : ev.conditionWinners;
+  if(!list.length) { alert('ยังไม่มีรายชื่อในส่วนนี้'); return; }
+  if(!confirm(`ใส่รางวัล "${reward}" ให้ทุกคน ${list.length} คนใน${type==='lucky'?'Lucky Draw':'Condition'}?`)) return;
+  list.forEach(r => r.reward = reward);
+  save();
+  renderWinnerRows(type==='lucky'?'luckyEditor':'condEditor', list, type);
+  document.getElementById(inputId).value = '';
 }
 
 function renderWinnerRows(containerId, allRows, type) {
