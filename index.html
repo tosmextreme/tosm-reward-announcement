@@ -185,12 +185,12 @@ body{
 }
 .hero-sub-th{
   font-family:'Trirong',serif;font-weight:600;
-  font-size:clamp(15px,2.5vw,20px);
-  color:var(--gold-soft);margin-top:4px;
+  font-size:clamp(20px,3.5vw,30px);
+  color:var(--gold-soft);margin-top:8px;
 }
 .hero-sub-en{
-  font-size:10px;letter-spacing:4px;text-transform:uppercase;
-  color:rgba(231,214,168,0.55);margin-top:3px;
+  font-size:12px;letter-spacing:5px;text-transform:uppercase;
+  color:rgba(231,214,168,0.55);margin-top:5px;
 }
 
 /* ── EVENT SELECTOR ─────────────────────────────────────────────────────── */
@@ -271,8 +271,8 @@ body{
 }
 
 /* ── CIRCLE BADGES A & B ─────────────────────────────────────────────────── */
-.badge-row{display:flex;gap:20px;justify-content:center;flex-wrap:wrap;margin-top:24px}
-.badge-card{flex:1 1 300px;max-width:450px;padding:24px 24px 22px}
+.badge-row{display:flex;gap:20px;justify-content:center;flex-wrap:wrap;margin-top:24px;align-items:stretch}
+.badge-card{flex:1 1 300px;max-width:450px;padding:24px 24px 22px;display:flex;flex-direction:column}
 .badge-card-top{display:flex;align-items:center;gap:18px;margin-bottom:16px}
 .circle-badge{
   flex-shrink:0;width:68px;height:68px;border-radius:50%;
@@ -567,7 +567,7 @@ footer{
   <section class="section" id="luckyDrawSection">
     <div class="sec-head">
       <div class="ornament-row"><span class="ornament-icon">✦</span></div>
-      <h2>รายชื่อผู้โชคดี</h2>
+      <h2 id="luckyHeading">รายชื่อผู้โชคดี</h2>
       <div class="h2-en">Lucky Draw Winners</div>
     </div>
     <div class="glass-card table-wrap">
@@ -588,7 +588,7 @@ footer{
   <section class="section" style="margin-bottom:20px;">
     <div class="sec-head">
       <div class="ornament-row"><span class="ornament-icon">◆</span></div>
-      <h2>รายชื่อผู้ได้รับรางวัล</h2>
+      <h2 id="condHeading">รายชื่อผู้ได้รับรางวัล</h2>
       <div class="h2-en">Reward Recipients</div>
     </div>
     <div class="glass-card table-wrap">
@@ -610,7 +610,6 @@ footer{
 <footer>
   <div class="foot-ornament">✦ &nbsp; ◆ &nbsp; ✦</div>
   <div class="foot-text">Imcgames Co., Ltd. All Rights Reserved.<br/>Published by Electronics Extreme Co., Ltd.</div>
-  <div class="foot-date" id="footDate"></div>
 </footer>
 
 <script>
@@ -750,6 +749,10 @@ function render() {
     sc.appendChild(c);
   });
 
+  // Section labels (editable from admin)
+  document.getElementById('luckyHeading').textContent = ev.luckyDrawLabel || 'รายชื่อผู้โชคดี';
+  document.getElementById('condHeading').textContent  = ev.conditionLabel  || 'รายชื่อผู้ได้รับรางวัล';
+
   // Lucky draw
   const lsec = document.getElementById('luckyDrawSection');
   if (!ev.showLuckyDraw) { lsec.style.display='none'; }
@@ -783,8 +786,6 @@ function render() {
   </tr>`).join('');
   renderPag('condPagination',condPage,ctotalPages,'cond');
 
-  // Footer date
-  document.getElementById('footDate').textContent = ev.deliveryDate ? 'วันจัดส่ง: '+ev.deliveryDate : '';
 }
 
 function renderPag(id, cur, total, type) {
