@@ -512,7 +512,7 @@ const DEFAULT_DATA = {
   events:[{
     id:'popo-o-drop', name:'Popo O Drop',
     deliveryDate:'29/05/26',
-    rewardChannel:'กล่องจดหมายในเกม',
+    rewardChannel:'กล่องจดหมายในเกม', rewardChannelLink:'',
     rewardChannelInstructions:'ทีมงานจะส่งรางวัลเข้า AID ของผู้ได้รับรางวัลโดยตรงผ่านระบบเกม\nกรุณาตรวจสอบ AID ของท่านในคลังไอเทมหลังจากได้รับการแจ้งเตือน\nหากไม่ได้รับรางวัลภายใน 7 วันทำการ กรุณาติดต่อทีมงานผ่านช่องทางอย่างเป็นทางการ\nทีมงานขอสงวนสิทธิ์ในการตรวจสอบและยืนยันตัวตนก่อนจัดส่ง',
     showLuckyDraw:true, luckyPerPage:5, conditionPerPage:10,
     status:'กำลังดำเนินการ', statusType:'pending',
@@ -532,12 +532,12 @@ const DEFAULT_DATA = {
       {name:'xx*****xx',aid:'',reward:'รางวัล ชุด B'}
     ],
     rewardSets:[
-      {label:'รางวัล ชุด A',labelEn:'Reward Set A',items:[
+      {label:'รางวัล ชุด A',labelEn:'Reward Set A',icon:'',items:[
         {name:'God Coin',   amount:'×5', img:'https://cdn.exe.in.th/marketing/tosm/images/Web_item/God_Coin.png'},
         {name:'Fellow Coin',amount:'×5', img:'https://cdn.exe.in.th/marketing/tosm/images/Web_item/Fellow_Coin.png'},
         {name:'Kupole Coin',amount:'×5', img:'https://cdn.exe.in.th/marketing/tosm/images/Web_item/Kupole_Coin.png'}
       ]},
-      {label:'รางวัล ชุด B',labelEn:'Reward Set B',items:[
+      {label:'รางวัล ชุด B',labelEn:'Reward Set B',icon:'',items:[
         {name:'Fellow Ticket',    amount:'×10',img:'https://cdn.exe.in.th/marketing/tosm/images/item_icon/fellow_ticket.png'},
         {name:'God Fellow Ticket',amount:'×10',img:'https://cdn.exe.in.th/marketing/tosm/images/item_icon/god_fellow_ticket.png'},
         {name:'Kupole Ticket',    amount:'×10',img:'https://cdn.exe.in.th/marketing/tosm/images/item_icon/kupole_ticket.png'}
@@ -665,7 +665,7 @@ function addEvent() {
   const name = document.getElementById('newEvName').value.trim();
   if(!name) return alert('กรุณาใส่ชื่อกิจกรรม');
   const id = 'ev-'+Date.now();
-  data.events.push({id,name,deliveryDate:'',rewardChannel:'กล่องจดหมายในเกม',
+  data.events.push({id,name,deliveryDate:'',rewardChannel:'กล่องจดหมายในเกม',rewardChannelLink:'',
     rewardChannelInstructions:'',showLuckyDraw:true,luckyPerPage:5,conditionPerPage:10,
     status:'กำลังดำเนินการ',statusType:'pending',statusDesc:'',
     luckyDrawLabel:'รายชื่อผู้โชคดี',luckyDrawLabelEn:'Lucky Draw Winners',
@@ -697,6 +697,8 @@ function renderEventSettings() {
     </div>
     <div class="field"><label>ข้อความคำแนะนำช่องทางรับรางวัล (แต่ละบรรทัด = 1 bullet)</label>
       <textarea id="evChannelInstr" rows="4">${ev.rewardChannelInstructions||''}</textarea></div>
+    <div class="field"><label>ลิงก์ปุ่มช่องทางรับรางวัล (URL) — ถ้าว่างเว้นไว้ ปุ่มจะกดไม่ได้</label>
+      <input type="text" id="evChannelLink" value="${ev.rewardChannelLink||''}" placeholder="https://..."/></div>
 
     <div class="divider"></div>
 
@@ -763,8 +765,9 @@ function previewChannel() {
 function saveEventSettings() {
   const ev = getEv();
   ev.deliveryDate            = document.getElementById('evDate').value.trim();
-  ev.rewardChannel           = document.getElementById('evChannel').value;
+  ev.rewardChannel             = document.getElementById('evChannel').value;
   ev.rewardChannelInstructions = document.getElementById('evChannelInstr').value.trim();
+  ev.rewardChannelLink         = document.getElementById('evChannelLink').value.trim();
   ev.showLuckyDraw           = document.getElementById('evShowLucky').checked;
   ev.luckyPerPage            = +document.getElementById('evLuckyPP').value;
   ev.conditionPerPage        = +document.getElementById('evCondPP').value;
@@ -946,6 +949,13 @@ function loadRewardEditor() {
     const card = document.createElement('div'); card.className='card';
     card.innerHTML=`<div class="card-title">ชุด ${String.fromCharCode(65+si)}: <input type="text" value="${set.label}" id="setLabel${si}" style="border:1px solid rgba(201,175,121,0.50);padding:3px 8px;border-radius:6px;font-size:14px;width:180px"/> &nbsp; <input type="text" value="${set.labelEn}" id="setLabelEn${si}" style="border:1px solid rgba(201,175,121,0.50);padding:3px 8px;border-radius:6px;font-size:13px;width:160px;color:var(--walnut-lt)"/>
       <button class="btn btn-danger btn-sm" style="float:right" onclick="removeRewardSet(${si})">ลบชุดนี้</button></div>
+      <div style="padding:8px 0 12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+        <label style="font-size:12px;font-weight:600;white-space:nowrap;">🖼 ไอคอนชุดรางวัล:</label>
+        <input type="text" id="setIcon${si}" value="${set.icon||''}" placeholder="วาง URL รูปภาพ หรืออัปโหลดด้านขวา" style="flex:1;min-width:180px;padding:6px 10px;border:1px solid rgba(201,175,121,0.50);border-radius:6px;font-size:12px"/>
+        <label style="cursor:pointer;padding:6px 12px;background:var(--viridian);color:#fff;border-radius:6px;font-size:12px;white-space:nowrap;">📁 อัปโหลด<input type="file" accept="image/*" style="display:none" onchange="loadSetIcon(${si},this)"/></label>
+        <span style="font-size:11px;color:var(--walnut-lt)">แนะนำ WebP/PNG 96×96px พื้นหลังโปร่งใส</span>
+        ${set.icon ? `<img src="${set.icon}" style="width:40px;height:40px;object-fit:contain;border-radius:6px;border:1px solid rgba(201,175,121,0.40);">` : ''}
+      </div>
       <div id="setItems${si}"></div>
       <button class="btn btn-ghost btn-sm btn-full" onclick="addRewardItem(${si})">+ เพิ่มไอเทม</button>`;
     c.appendChild(card);
@@ -969,11 +979,13 @@ function renderSetItems(si, items) {
 function syncSetItems(si) {
   const ev = getSelEv('rewardEvSel'); if(!ev) return;
   const set = ev.rewardSets[si]; if(!set) return;
-  // Sync label fields
+  // Sync label + icon fields
   const lEl = document.getElementById(`setLabel${si}`);
   const lEnEl = document.getElementById(`setLabelEn${si}`);
+  const iEl = document.getElementById(`setIcon${si}`);
   if(lEl)   set.label   = lEl.value;
   if(lEnEl) set.labelEn = lEnEl.value;
+  if(iEl)   set.icon    = iEl.value;
   // Sync item fields
   set.items.forEach((item, ii) => {
     const n = document.getElementById(`iName${si}_${ii}`);
@@ -1005,7 +1017,7 @@ function addRewardSet() {
   syncAllSets(); // preserve all unsaved work before full re-render
   const ev=getSelEv('rewardEvSel');if(!ev) return;
   const n=ev.rewardSets.length;
-  ev.rewardSets.push({label:`รางวัล ชุด ${String.fromCharCode(65+n)}`,labelEn:`Reward Set ${String.fromCharCode(65+n)}`,items:[]});
+  ev.rewardSets.push({label:`รางวัล ชุด ${String.fromCharCode(65+n)}`,labelEn:`Reward Set ${String.fromCharCode(65+n)}`,icon:'',items:[]});
   loadRewardEditor();
 }
 function removeRewardSet(si) {
@@ -1020,6 +1032,7 @@ function saveRewards() {
   (ev.rewardSets||[]).forEach((set,si)=>{
     if(document.getElementById(`setLabel${si}`))   set.label  =document.getElementById(`setLabel${si}`).value;
     if(document.getElementById(`setLabelEn${si}`)) set.labelEn=document.getElementById(`setLabelEn${si}`).value;
+    if(document.getElementById(`setIcon${si}`))    set.icon   =document.getElementById(`setIcon${si}`).value;
     set.items.forEach((item,ii)=>{
       if(document.getElementById(`iName${si}_${ii}`)) item.name  =document.getElementById(`iName${si}_${ii}`).value;
       if(document.getElementById(`iAmt${si}_${ii}`))  item.amount=document.getElementById(`iAmt${si}_${ii}`).value;
@@ -1027,6 +1040,26 @@ function saveRewards() {
     });
   });
   save(); alert('บันทึกของรางวัลเรียบร้อย ✓');
+}
+
+function loadSetIcon(si, input) {
+  const file = input.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const urlInput = document.getElementById(`setIcon${si}`);
+    if(urlInput) {
+      urlInput.value = e.target.result;
+      // Update preview immediately
+      const card = urlInput.closest('.card');
+      if(card) {
+        let prev = card.querySelector('.icon-preview');
+        if(!prev) { prev = document.createElement('img'); prev.className='icon-preview'; prev.style.cssText='width:40px;height:40px;object-fit:contain;border-radius:6px;border:1px solid rgba(201,175,121,0.40);margin-left:8px'; card.querySelector('[style*="padding:8px"]').appendChild(prev); }
+        prev.src = e.target.result;
+      }
+    }
+    input.value=''; // reset so same file can be re-selected
+  };
+  reader.readAsDataURL(file);
 }
 
 // ── GOOGLE SHEETS IMPORT ──────────────────────────────────────────────────

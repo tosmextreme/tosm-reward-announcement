@@ -300,6 +300,7 @@ body{
   border:1px solid var(--badge-body-bdr);
   border-radius:8px;font-size:14px;
   color:var(--badge-body-col);line-height:1.75;
+  flex:1;
 }
 
 /* CHANNEL TYPE BADGE */
@@ -526,12 +527,7 @@ footer{
           <div class="badge-label">ช่องทางการรับรางวัล<span class="en">Receive Reward At</span></div>
         </div>
         <div class="badge-body" style="text-align:center;padding:18px 16px;">
-          <div id="channelBadgeWrap" style="margin-bottom:14px;">
-            <span class="channel-type-badge" id="channelTypeBadge">
-              <span id="channelTypeIcon">📬</span>
-              <span id="channelTypeText">กล่องจดหมายในเกม</span>
-            </span>
-          </div>
+          <div id="channelBadgeWrap" style="margin-bottom:14px;"></div>
           <ul id="channelInstructions" style="display:inline-block;text-align:left;"></ul>
         </div>
       </div>
@@ -626,7 +622,7 @@ const DEFAULT_DATA = {
   events:[{
     id:'popo-o-drop', name:'Popo O Drop',
     deliveryDate:'29/05/26',
-    rewardChannel:'กล่องจดหมายในเกม',
+    rewardChannel:'กล่องจดหมายในเกม', rewardChannelLink:'',
     rewardChannelInstructions:'ทีมงานจะส่งรางวัลเข้า AID ของผู้ได้รับรางวัลโดยตรงผ่านระบบเกม\nกรุณาตรวจสอบ AID ของท่านในคลังไอเทมหลังจากได้รับการแจ้งเตือน\nหากไม่ได้รับรางวัลภายใน 7 วันทำการ กรุณาติดต่อทีมงานผ่านช่องทางอย่างเป็นทางการ\nทีมงานขอสงวนสิทธิ์ในการตรวจสอบและยืนยันตัวตนก่อนจัดส่ง',
     showLuckyDraw:true, luckyPerPage:5, conditionPerPage:10,
     status:'กำลังดำเนินการ', statusType:'pending',
@@ -644,12 +640,12 @@ const DEFAULT_DATA = {
       {name:'xx*****xx',aid:'123456789',reward:'รางวัล ชุด B'}
     ],
     rewardSets:[
-      {label:'รางวัล ชุด A',labelEn:'Reward Set A',items:[
+      {label:'รางวัล ชุด A',labelEn:'Reward Set A',icon:'',items:[
         {name:'God Coin',   amount:'×5', img:'https://cdn.exe.in.th/marketing/tosm/images/Web_item/God_Coin.png'},
         {name:'Fellow Coin',amount:'×5', img:'https://cdn.exe.in.th/marketing/tosm/images/Web_item/Fellow_Coin.png'},
         {name:'Kupole Coin',amount:'×5', img:'https://cdn.exe.in.th/marketing/tosm/images/Web_item/Kupole_Coin.png'}
       ]},
-      {label:'รางวัล ชุด B',labelEn:'Reward Set B',items:[
+      {label:'รางวัล ชุด B',labelEn:'Reward Set B',icon:'',items:[
         {name:'Fellow Ticket',    amount:'×10',img:'https://cdn.exe.in.th/marketing/tosm/images/item_icon/fellow_ticket.png'},
         {name:'God Fellow Ticket',amount:'×10',img:'https://cdn.exe.in.th/marketing/tosm/images/item_icon/god_fellow_ticket.png'},
         {name:'Kupole Ticket',    amount:'×10',img:'https://cdn.exe.in.th/marketing/tosm/images/item_icon/kupole_ticket.png'}
@@ -707,11 +703,13 @@ function render() {
   document.getElementById('deliveryDateEl').textContent = ev.deliveryDate || '--/--/--';
 
   // Channel badge
-  const ch = ev.rewardChannel || 'กล่องจดหมายในเกม';
-  const cc = CHANNEL_COLORS[ch] || { bg:'#0284C7', icon:'📬' };
-  document.getElementById('channelTypeBadge').style.background = cc.bg;
-  document.getElementById('channelTypeIcon').textContent = cc.icon;
-  document.getElementById('channelTypeText').textContent = ch;
+  const ch  = ev.rewardChannel || 'กล่องจดหมายในเกม';
+  const cc  = CHANNEL_COLORS[ch] || { bg:'#0284C7', icon:'📬' };
+  const lnk = (ev.rewardChannelLink || '').trim();
+  const badgeInner = `<span style="display:inline-flex;align-items:center;gap:8px;">${cc.icon} ${ch}</span>`;
+  document.getElementById('channelBadgeWrap').innerHTML = lnk
+    ? `<a href="${lnk}" target="_blank" rel="noopener" class="channel-type-badge" style="background:${cc.bg};text-decoration:none;cursor:pointer;">${badgeInner}</a>`
+    : `<span class="channel-type-badge" style="background:${cc.bg};cursor:default;opacity:0.85;">${badgeInner}</span>`;
   document.getElementById('channelInstructions').innerHTML =
     (ev.rewardChannelInstructions || '').split('\n').filter(l=>l.trim()).map(l=>`<li>${l}</li>`).join('');
 
@@ -736,8 +734,11 @@ function render() {
   sc.innerHTML = '';
   (ev.rewardSets||[]).forEach((set,si)=>{
     const c = document.createElement('div'); c.className='reward-set-card glass-card';
+    const iconHtml = set.icon
+      ? `<div class="set-letter" style="background:transparent;box-shadow:none;"><img src="${set.icon}" style="width:44px;height:44px;object-fit:contain;" alt=""/></div>`
+      : '';
     c.innerHTML=`<div class="set-header">
-      <div class="set-letter">${String.fromCharCode(65+si)}</div>
+      ${iconHtml}
       <div class="set-title">${set.label}<span class="en">${set.labelEn}</span></div>
     </div>
     <div class="set-items">${(set.items||[]).map(item=>`
