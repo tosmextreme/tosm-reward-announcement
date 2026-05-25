@@ -568,7 +568,7 @@ footer{
     <div class="sec-head">
       <div class="ornament-row"><span class="ornament-icon">✦</span></div>
       <h2 id="luckyHeading">รายชื่อผู้โชคดี</h2>
-      <div class="h2-en">Lucky Draw Winners</div>
+      <div class="h2-en" id="luckyHeadingEn">Lucky Draw Winners</div>
     </div>
     <div class="glass-card table-wrap">
       <table class="rewards">
@@ -589,7 +589,7 @@ footer{
     <div class="sec-head">
       <div class="ornament-row"><span class="ornament-icon">◆</span></div>
       <h2 id="condHeading">รายชื่อผู้ได้รับรางวัล</h2>
-      <div class="h2-en">Reward Recipients</div>
+      <div class="h2-en" id="condHeadingEn">Reward Recipients</div>
     </div>
     <div class="glass-card table-wrap">
       <table class="rewards">
@@ -750,8 +750,10 @@ function render() {
   });
 
   // Section labels (editable from admin)
-  document.getElementById('luckyHeading').textContent = ev.luckyDrawLabel || 'รายชื่อผู้โชคดี';
-  document.getElementById('condHeading').textContent  = ev.conditionLabel  || 'รายชื่อผู้ได้รับรางวัล';
+  document.getElementById('luckyHeading').textContent   = ev.luckyDrawLabel   || 'รายชื่อผู้โชคดี';
+  document.getElementById('luckyHeadingEn').textContent = ev.luckyDrawLabelEn || 'Lucky Draw Winners';
+  document.getElementById('condHeading').textContent    = ev.conditionLabel   || 'รายชื่อผู้ได้รับรางวัล';
+  document.getElementById('condHeadingEn').textContent  = ev.conditionLabelEn || 'Reward Recipients';
 
   // Lucky draw
   const lsec = document.getElementById('luckyDrawSection');
