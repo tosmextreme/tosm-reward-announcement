@@ -175,6 +175,40 @@ body{font-family:'Sarabun',sans-serif;color:var(--walnut);background:var(--ivory
 .status-preset-pending{background:#B45309}
 .status-preset-error  {background:#B91C1C}
 
+/* WINNERS TWO-COLUMN LAYOUT */
+.winners-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.winner-col{}
+.winner-col-head{
+  display:flex;align-items:center;gap:8px;
+  padding:10px 0;margin-bottom:12px;
+  border-bottom:2px solid rgba(201,175,121,0.30);
+}
+.winner-col-head .col-icon{font-size:16px;flex-shrink:0}
+.section-name-input{
+  flex:1;font-family:'Trirong',serif;font-weight:700;font-size:15px;
+  color:var(--teal);background:transparent;
+  border:none;border-bottom:1.5px dashed rgba(201,175,121,0.35);
+  outline:none;padding:2px 4px;min-width:0;
+}
+.section-name-input:focus{border-bottom-color:var(--viridian);background:rgba(64,130,109,0.05)}
+.winner-col-count{
+  font-size:11px;padding:2px 8px;border-radius:10px;
+  background:rgba(64,130,109,0.12);color:var(--viridian);flex-shrink:0;font-weight:600;
+}
+.editor-pag{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-top:10px;padding-top:8px;
+  border-top:1px solid rgba(201,175,121,0.20);
+  font-size:12px;color:var(--walnut-lt);
+}
+.editor-pag-btns{display:flex;align-items:center;gap:6px}
+.winner-empty{
+  text-align:center;padding:24px 16px;
+  color:var(--walnut-lt);font-size:13px;
+  background:rgba(64,130,109,0.04);border-radius:8px;
+  border:1px dashed rgba(201,175,121,0.25);
+}
+
 /* WINNER ROW EDITOR */
 .winner-editor-row{
   background:var(--ivory-2);border:1px solid rgba(201,175,121,0.30);
@@ -301,19 +335,48 @@ body{font-family:'Sarabun',sans-serif;color:var(--walnut);background:var(--ivory
     </div>
 
     <!-- TAB: WINNERS -->
-    <div class="tab-content" id="tab-winners">
+    <div class="tab-content" id="tab-winners" style="max-width:none">
       <div class="page-title">รายชื่อผู้ได้รางวัล</div>
-      <div class="page-sub">แก้ไขชื่อ Facebook, AID และรางวัล</div>
-      <div class="field"><label>เลือกกิจกรรม</label><select id="winnerEvSel" onchange="loadWinnerEditor()"></select></div>
+      <div class="page-sub">แก้ไขชื่อ / AID / รางวัล — ชื่อหัวข้อแก้ไขได้โดยคลิกที่ข้อความ</div>
 
-      <div class="card-title" style="margin-bottom:10px">🍀 รายชื่อผู้โชคดี (Lucky Draw)</div>
-      <div id="luckyEditor"></div>
-      <button class="btn btn-ghost btn-full" onclick="addWinnerRow('lucky')">+ เพิ่มแถว</button>
+      <div style="display:flex;gap:16px;align-items:flex-end;flex-wrap:wrap;margin-bottom:20px">
+        <div class="field" style="margin:0;flex:1;min-width:180px">
+          <label>เลือกกิจกรรม</label>
+          <select id="winnerEvSel" onchange="loadWinnerEditor()"></select>
+        </div>
+        <div class="field" style="margin:0;flex:2;min-width:220px">
+          <label>🔍 ค้นหาชื่อ / AID</label>
+          <input type="text" id="winnerSearchInput" placeholder="พิมพ์ชื่อหรือ AID เพื่อกรอง..." oninput="onWinnerSearch(this.value)"/>
+        </div>
+      </div>
 
-      <div class="divider"></div>
-      <div class="card-title" style="margin-bottom:10px">🎯 รายชื่อผู้ได้รับรางวัล (Condition)</div>
-      <div id="condEditor"></div>
-      <button class="btn btn-ghost btn-full" onclick="addWinnerRow('cond')">+ เพิ่มแถว</button>
+      <div class="winners-grid">
+        <!-- LUCKY DRAW COLUMN -->
+        <div class="winner-col">
+          <div class="winner-col-head">
+            <span class="col-icon">🍀</span>
+            <input class="section-name-input" id="luckyLabelInput" placeholder="ชื่อหัวข้อ"
+              title="คลิกเพื่อแก้ไขชื่อหัวข้อ"
+              onblur="saveSectionLabel('lucky', this.value)"/>
+            <span class="winner-col-count" id="luckyCount">0</span>
+          </div>
+          <div id="luckyEditor"></div>
+          <button class="btn btn-ghost btn-full" style="margin-top:10px" onclick="addWinnerRow('lucky')">+ เพิ่มแถว</button>
+        </div>
+
+        <!-- CONDITION COLUMN -->
+        <div class="winner-col">
+          <div class="winner-col-head">
+            <span class="col-icon">🎯</span>
+            <input class="section-name-input" id="condLabelInput" placeholder="ชื่อหัวข้อ"
+              title="คลิกเพื่อแก้ไขชื่อหัวข้อ"
+              onblur="saveSectionLabel('cond', this.value)"/>
+            <span class="winner-col-count" id="condCount">0</span>
+          </div>
+          <div id="condEditor"></div>
+          <button class="btn btn-ghost btn-full" style="margin-top:10px" onclick="addWinnerRow('cond')">+ เพิ่มแถว</button>
+        </div>
+      </div>
 
       <div class="divider"></div>
       <button class="btn btn-primary" onclick="saveWinners()">💾 บันทึกรายชื่อ</button>
@@ -406,6 +469,7 @@ const DEFAULT_DATA = {
     rewardChannelInstructions:'ทีมงานจะส่งรางวัลเข้า AID ของผู้ได้รับรางวัลโดยตรงผ่านระบบเกม\nกรุณาตรวจสอบ AID ของท่านในคลังไอเทมหลังจากได้รับการแจ้งเตือน\nหากไม่ได้รับรางวัลภายใน 7 วันทำการ กรุณาติดต่อทีมงานผ่านช่องทางอย่างเป็นทางการ\nทีมงานขอสงวนสิทธิ์ในการตรวจสอบและยืนยันตัวตนก่อนจัดส่ง',
     showLuckyDraw:true, luckyPerPage:5, conditionPerPage:10,
     status:'กำลังดำเนินการ', statusType:'pending',
+    luckyDrawLabel:'รายชื่อผู้โชคดี', conditionLabel:'รายชื่อผู้ได้รับรางวัล',
     statusDesc:'ขณะนี้ทีมงานกำลังดำเนินการจัดส่งรางวัลให้ผู้ได้รับรางวัลทุกท่าน\nสถานะจะอัปเดตเมื่อการจัดส่งเสร็จสมบูรณ์',
     luckyDraw:[
       {name:'xx*****xx',aid:'',reward:'รางวัล ชุด A'},
@@ -474,7 +538,11 @@ document.querySelectorAll('.nav-item').forEach(item=>{
   });
 });
 function refreshTab(tab) {
-  if(tab==='winners') { populateSels(); loadWinnerEditor(); }
+  if(tab==='winners') {
+    winnerSearchQuery=''; luckyEditorPage=0; condEditorPage=0;
+    const si=document.getElementById('winnerSearchInput'); if(si) si.value='';
+    populateSels(); loadWinnerEditor();
+  }
   if(tab==='rewards') { populateSels(); loadRewardEditor(); }
   if(tab==='import')  { populateSels(); }
 }
@@ -552,6 +620,7 @@ function addEvent() {
   data.events.push({id,name,deliveryDate:'',rewardChannel:'กล่องจดหมายในเกม',
     rewardChannelInstructions:'',showLuckyDraw:true,luckyPerPage:5,conditionPerPage:10,
     status:'กำลังดำเนินการ',statusType:'pending',statusDesc:'',
+    luckyDrawLabel:'รายชื่อผู้โชคดี',conditionLabel:'รายชื่อผู้ได้รับรางวัล',
     visible:true,luckyDraw:[],conditionWinners:[],rewardSets:[]});
   document.getElementById('newEvName').value='';
   save(); renderEventList(); renderEventSettings(); populateSels();
@@ -657,46 +726,132 @@ function saveEventSettings() {
 }
 
 // ── WINNERS TAB ───────────────────────────────────────────────────────────
-function loadWinnerEditor() {
+let luckyEditorPage = 0, condEditorPage = 0;
+let winnerSearchQuery = '';
+const EDITOR_PER_PAGE = 15;
+
+function onWinnerSearch(val) {
+  winnerSearchQuery = val;
+  luckyEditorPage = 0; condEditorPage = 0;
   const ev = getSelEv('winnerEvSel'); if(!ev) return;
   renderWinnerRows('luckyEditor', ev.luckyDraw||[], 'lucky');
   renderWinnerRows('condEditor', ev.conditionWinners||[], 'cond');
 }
 
-function renderWinnerRows(containerId, rows, type) {
+function loadWinnerEditor() {
+  const ev = getSelEv('winnerEvSel'); if(!ev) return;
+  // Section labels
+  const ll = document.getElementById('luckyLabelInput');
+  const cl = document.getElementById('condLabelInput');
+  if(ll) ll.value = ev.luckyDrawLabel || 'รายชื่อผู้โชคดี';
+  if(cl) cl.value = ev.conditionLabel || 'รายชื่อผู้ได้รับรางวัล';
+  renderWinnerRows('luckyEditor', ev.luckyDraw||[], 'lucky');
+  renderWinnerRows('condEditor', ev.conditionWinners||[], 'cond');
+}
+
+function saveSectionLabel(type, value) {
+  const ev = getSelEv('winnerEvSel'); if(!ev) return;
+  if(type==='lucky') ev.luckyDrawLabel = value.trim() || 'รายชื่อผู้โชคดี';
+  else               ev.conditionLabel = value.trim() || 'รายชื่อผู้ได้รับรางวัล';
+  save();
+}
+
+function renderWinnerRows(containerId, allRows, type) {
   const c = document.getElementById(containerId); c.innerHTML='';
-  rows.forEach((row,i)=>{
+
+  // Search filter (name or AID)
+  const q = winnerSearchQuery.toLowerCase().trim();
+  const indexed = allRows.map((row, i) => ({i, row}));
+  const filtered = q
+    ? indexed.filter(({row}) =>
+        (row.aid||'').toLowerCase().includes(q) ||
+        (row.name||'').toLowerCase().includes(q))
+    : indexed;
+
+  // Update count badge
+  const countEl = document.getElementById(type==='lucky'?'luckyCount':'condCount');
+  if(countEl) countEl.textContent = allRows.length + ' คน';
+
+  // Pagination
+  let page = type==='lucky' ? luckyEditorPage : condEditorPage;
+  const totalPages = Math.max(1, Math.ceil(filtered.length / EDITOR_PER_PAGE));
+  page = Math.max(0, Math.min(page, totalPages - 1));
+  if(type==='lucky') luckyEditorPage=page; else condEditorPage=page;
+
+  const slice = filtered.slice(page * EDITOR_PER_PAGE, (page+1) * EDITOR_PER_PAGE);
+
+  if(filtered.length === 0) {
+    c.innerHTML=`<div class="winner-empty">${q?'ไม่พบรายชื่อที่ตรงกับ "'+q+'"':'ยังไม่มีข้อมูล กด "+ เพิ่มแถว" เพื่อเริ่มต้น'}</div>`;
+    return;
+  }
+
+  slice.forEach(({i, row}) => {
     const d = document.createElement('div'); d.className='winner-editor-row';
     d.innerHTML=`<div class="row-label">${type==='lucky'?'ผู้โชคดี':'ผู้ได้รับรางวัล'} #${i+1}</div>
       <div class="inputs">
-        <div><input type="text" placeholder="ชื่อ Facebook" value="${row.name}" data-f="name" data-i="${i}" data-t="${type}"/></div>
-        <div><input type="text" placeholder="AID" value="${row.aid}" data-f="aid" data-i="${i}" data-t="${type}"/></div>
-        <div class="full"><input type="text" placeholder="รางวัล" value="${row.reward}" data-f="reward" data-i="${i}" data-t="${type}"/></div>
+        <div><input type="text" placeholder="ชื่อ Facebook" value="${(row.name||'').replace(/"/g,'&quot;')}"
+          data-f="name" data-i="${i}" data-t="${type}"
+          onblur="updateWinnerField(${i},'${type}','name',this.value)"/></div>
+        <div><input type="text" placeholder="AID" value="${(row.aid||'').replace(/"/g,'&quot;')}"
+          data-f="aid" data-i="${i}" data-t="${type}"
+          onblur="updateWinnerField(${i},'${type}','aid',this.value)"/></div>
+        <div class="full"><input type="text" placeholder="รางวัล" value="${(row.reward||'').replace(/"/g,'&quot;')}"
+          data-f="reward" data-i="${i}" data-t="${type}"
+          onblur="updateWinnerField(${i},'${type}','reward',this.value)"/></div>
       </div>
       <button class="btn btn-danger btn-sm" style="margin-top:6px" onclick="removeWinnerRow(${i},'${type}')">ลบ</button>`;
     c.appendChild(d);
   });
+
+  // Pagination bar
+  const pg = document.createElement('div'); pg.className='editor-pag';
+  pg.innerHTML=`<span>${filtered.length} รายการ${q?' (กรองแล้ว)':''}</span>
+    ${totalPages>1?`<div class="editor-pag-btns">
+      <button class="btn btn-ghost btn-sm" onclick="changeEditorPage('${type}',${page-1})" ${page===0?'disabled':''}>‹</button>
+      <span>หน้า ${page+1} / ${totalPages}</span>
+      <button class="btn btn-ghost btn-sm" onclick="changeEditorPage('${type}',${page+1})" ${page>=totalPages-1?'disabled':''}>›</button>
+    </div>`:''}`;
+  c.appendChild(pg);
+}
+
+// Auto-sync field value on blur (keeps data safe across page turns)
+function updateWinnerField(i, type, field, value) {
+  const ev = getSelEv('winnerEvSel'); if(!ev) return;
+  const list = type==='lucky' ? ev.luckyDraw : ev.conditionWinners;
+  if(list[i]) list[i][field] = value;
+}
+
+function changeEditorPage(type, page) {
+  if(type==='lucky') luckyEditorPage=page; else condEditorPage=page;
+  const ev = getSelEv('winnerEvSel'); if(!ev) return;
+  renderWinnerRows(
+    type==='lucky'?'luckyEditor':'condEditor',
+    type==='lucky'?ev.luckyDraw:ev.conditionWinners, type);
 }
 
 function addWinnerRow(type) {
   const ev = getSelEv('winnerEvSel'); if(!ev) return;
-  if(type==='lucky') ev.luckyDraw.push({name:'xx*****xx',aid:'',reward:''});
-  else ev.conditionWinners.push({name:'xx*****xx',aid:'',reward:''});
-  renderWinnerRows(type==='lucky'?'luckyEditor':'condEditor', type==='lucky'?ev.luckyDraw:ev.conditionWinners, type);
+  const list = type==='lucky' ? ev.luckyDraw : ev.conditionWinners;
+  list.push({name:'xx*****xx',aid:'',reward:''});
+  // Jump to last page to show the new row
+  const newPage = Math.floor((list.length-1) / EDITOR_PER_PAGE);
+  if(type==='lucky') luckyEditorPage=newPage; else condEditorPage=newPage;
+  renderWinnerRows(type==='lucky'?'luckyEditor':'condEditor', list, type);
 }
 
 function removeWinnerRow(i, type) {
   const ev = getSelEv('winnerEvSel'); if(!ev) return;
   if(type==='lucky') ev.luckyDraw.splice(i,1);
   else ev.conditionWinners.splice(i,1);
-  renderWinnerRows(type==='lucky'?'luckyEditor':'condEditor', type==='lucky'?ev.luckyDraw:ev.conditionWinners, type);
+  renderWinnerRows(type==='lucky'?'luckyEditor':'condEditor',
+    type==='lucky'?ev.luckyDraw:ev.conditionWinners, type);
 }
 
 function saveWinners() {
   const ev = getSelEv('winnerEvSel'); if(!ev) return;
+  // Sync any visible inputs as safety net
   ['luckyEditor','condEditor'].forEach((cid,ci)=>{
-    const type=ci===0?'lucky':'cond';
-    const list=ci===0?ev.luckyDraw:ev.conditionWinners;
+    const list = ci===0 ? ev.luckyDraw : ev.conditionWinners;
     document.querySelectorAll(`#${cid} input[data-f]`).forEach(inp=>{
       if(list[+inp.dataset.i]) list[+inp.dataset.i][inp.dataset.f]=inp.value;
     });
