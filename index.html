@@ -654,7 +654,11 @@ const DEFAULT_DATA = {
   }]
 };
 
+/* __BAKED_DATA__ */ const BAKED_DATA = null; /* __BAKED_DATA_END__ */
+
 let appData = (() => {
+  // BAKED_DATA is injected by Admin Export — always wins over localStorage
+  if (BAKED_DATA !== null) return JSON.parse(JSON.stringify(BAKED_DATA));
   try { const s = localStorage.getItem(STORAGE_KEY); return s ? JSON.parse(s) : JSON.parse(JSON.stringify(DEFAULT_DATA)); }
   catch(e) { return JSON.parse(JSON.stringify(DEFAULT_DATA)); }
 })();

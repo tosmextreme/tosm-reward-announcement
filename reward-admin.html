@@ -77,6 +77,14 @@ body{font-family:'Sarabun',sans-serif;color:var(--walnut);background:var(--ivory
   font-family:'Sarabun',sans-serif;font-weight:600;
 }
 .lock-btn:hover{background:rgba(192,57,43,0.30);border-color:var(--red);color:#fff}
+.export-btn{
+  width:100%;padding:10px;border-radius:8px;margin-bottom:8px;
+  background:linear-gradient(135deg,var(--gold-dk),var(--gold));
+  border:none;color:var(--walnut);font-size:13px;cursor:pointer;transition:all 0.2s;
+  font-family:'Sarabun',sans-serif;font-weight:700;
+  box-shadow:0 3px 10px rgba(0,0,0,0.25);
+}
+.export-btn:hover{opacity:0.88;transform:translateY(-1px)}
 
 /* MAIN CONTENT */
 .main{flex:1;overflow-y:auto;background:var(--ivory)}
@@ -338,6 +346,7 @@ body{font-family:'Sarabun',sans-serif;color:var(--walnut);background:var(--ivory
       <div class="nav-item" data-tab="import"><span class="icon">📥</span>นำเข้า CSV</div>
     </nav>
     <div class="sidebar-bottom">
+      <button class="export-btn" onclick="exportAnnouncementPage()">📤 Export หน้าประกาศ</button>
       <button class="lock-btn" onclick="lockAdmin()">🔒 ล็อกระบบ</button>
     </div>
   </aside>
@@ -568,6 +577,32 @@ function tryLogin() {
   }
 }
 document.getElementById('pwInput').addEventListener('keydown',e=>{ if(e.key==='Enter') tryLogin(); });
+
+async function exportAnnouncementPage() {
+  try {
+    const resp = await fetch('./index.html');
+    if (!resp.ok) throw new Error('fetch ' + resp.status);
+    const html = await resp.text();
+    const marker = '/* __BAKED_DATA__ */ const BAKED_DATA = null; /* __BAKED_DATA_END__ */';
+    if (!html.includes(marker)) throw new Error('marker missing — index.html may be outdated');
+    const json = JSON.stringify(data);
+    const modified = html.replace(marker, `/* __BAKED_DATA__ */ const BAKED_DATA = ${json}; /* __BAKED_DATA_END__ */`);
+    const blob = new Blob([modified], {type:'text/html;charset=utf-8'});
+    const url  = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'index.html';
+    document.body.appendChild(a); a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    alert('✓ ดาวน์โหลด index.html เรียบร้อย!\n\nขั้นตอนต่อไป:\nอัปโหลดไฟล์นี้ไปที่ GitHub repo แทนที่ไฟล์เดิม\nผู้เล่นทุกคนจะเห็นข้อมูลที่อัปเดตทันที');
+  } catch(e) {
+    if (e.message.includes('fetch') || location.protocol === 'file:') {
+      alert('⚠️ ไม่สามารถ Export จาก file:// ได้\n\nวิธีแก้ไข:\n1. อัปโหลดไฟล์ทั้งสองขึ้น GitHub ก่อน\n2. เปิด Admin Tool จาก GitHub Pages\n   (https://[your-repo].github.io/[repo]/reward-admin.html)\n3. กด Export อีกครั้งจากที่นั่น\n\nหรืออัปโหลด reward-admin.html + index.html ขึ้น GitHub และ Export จาก URL นั้น');
+    } else {
+      alert('เกิดข้อผิดพลาด: ' + e.message);
+    }
+  }
+}
 
 function lockAdmin() {
   document.getElementById('app').classList.remove('show');
