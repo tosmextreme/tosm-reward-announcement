@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&family=Trirong:wght@400;500;600;700&family=Cinzel+Decorative:wght@700;900&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 /* ── BRAND CONSTANTS ───────────────────────────────────────────────────── */
 :root {
@@ -609,6 +610,11 @@ footer{
 </footer>
 
 <script>
+// ── SUPABASE ──────────────────────────────────────────────────────────────
+const SB_URL  = 'https://tkwxdohgqinldpvdkqnt.supabase.co';
+const SB_KEY  = 'sb_publishable_WJ2m36sC0wzUxLHAUiE4kw_bhybHasU';
+const sb = window.supabase.createClient(SB_URL, SB_KEY);
+
 const STORAGE_KEY = 'tosm_reward_data_v2';
 
 const CHANNEL_COLORS = {
@@ -824,7 +830,50 @@ function jumpPage(type, val, total) {
   render();
 }
 
-render();
+render(); // initial paint from localStorage/default while Supabase loads
+
+// ── SUPABASE REAL-TIME INIT ───────────────────────────────────────────────
+async function initRealtime() {
+  // 1. Load latest data from Supabase
+  try {
+    const { data: row, error } = await sb
+      .from('reward_data').select('data').eq('id', 1).single();
+    if (!error && row && row.data && row.data.events) {
+      appData = row.data;
+      luckyPage = 0; condPage = 0;
+      render();
+      // Keep localStorage in sync for fallback
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(appData)); } catch(e) {}
+    }
+  } catch(e) { /* silently fall back to localStorage data already rendered */ }
+
+  // 2. Subscribe to real-time changes — instant updates when admin saves
+  sb.channel('reward_realtime')
+    .on('postgres_changes', {
+      event: 'UPDATE', schema: 'public', table: 'reward_data'
+    }, (payload) => {
+      if (payload.new && payload.new.data && payload.new.data.events) {
+        appData = payload.new.data;
+        luckyPage = 0; condPage = 0;
+        render();
+      }
+    })
+    .subscribe();
+
+  // 3. Polling fallback every 30s (catches any missed real-time events)
+  setInterval(async () => {
+    try {
+      const { data: row } = await sb
+        .from('reward_data').select('data').eq('id', 1).single();
+      if (row && row.data && row.data.events) {
+        appData = row.data;
+        render();
+      }
+    } catch(e) {}
+  }, 30000);
+}
+
+initRealtime();
 </script>
 </body>
 </html>

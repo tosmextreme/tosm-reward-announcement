@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&family=Trirong:wght@400;600;700&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 /* ── CHANGE PASSWORD IN THE SCRIPT BELOW ────────────────────────────────── */
 :root{
@@ -346,6 +347,7 @@ body{font-family:'Sarabun',sans-serif;color:var(--walnut);background:var(--ivory
       <div class="nav-item" data-tab="import"><span class="icon">📥</span>นำเข้า CSV</div>
     </nav>
     <div class="sidebar-bottom">
+      <div id="syncStatus" style="font-size:11px;text-align:center;color:#C9AF79;min-height:16px;margin-bottom:6px;font-family:'Sarabun',sans-serif;"></div>
       <button class="export-btn" onclick="exportAnnouncementPage()">📤 Export หน้าประกาศ</button>
       <button class="lock-btn" onclick="lockAdmin()">🔒 ล็อกระบบ</button>
     </div>
@@ -560,15 +562,43 @@ let data = (() => {
   catch(e) { return JSON.parse(JSON.stringify(DEFAULT_DATA)); }
 })();
 
-function save() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch(e) {} }
+// ── SUPABASE ──────────────────────────────────────────────────────────────
+const SB_URL = 'https://tkwxdohgqinldpvdkqnt.supabase.co';
+const SB_KEY = 'sb_publishable_WJ2m36sC0wzUxLHAUiE4kw_bhybHasU';
+const sb = window.supabase.createClient(SB_URL, SB_KEY);
+
+function setSyncStatus(ok) {
+  const el = document.getElementById('syncStatus');
+  if (!el) return;
+  el.textContent = ok ? '☁️ Synced' : '⚠️ Sync failed';
+  el.style.color  = ok ? '#C9AF79' : '#F87171';
+  clearTimeout(el._t);
+  el._t = setTimeout(() => { el.textContent = ''; }, 3000);
+}
+
+function save() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch(e) {}
+  // Push to Supabase — all visitors see the update instantly
+  sb.from('reward_data')
+    .upsert({ id: 1, data: data, updated_at: new Date().toISOString() })
+    .then(({ error }) => setSyncStatus(!error));
+}
 function getEv(id) { return data.events.find(e=>e.id===(id||data.activeEventId)) || data.events[0]; }
 function getSelEv(selId) { return getEv(document.getElementById(selId).value); }
 
 // ── AUTH ─────────────────────────────────────────────────────────────────
-function tryLogin() {
+async function tryLogin() {
   if (document.getElementById('pwInput').value === ADMIN_PASSWORD) {
     document.getElementById('pwScreen').style.display='none';
     document.getElementById('app').classList.add('show');
+    // Pull latest data from Supabase before init (so admin always sees freshest data)
+    try {
+      const { data: row } = await sb.from('reward_data').select('data').eq('id', 1).single();
+      if (row && row.data && row.data.events && row.data.events.length > 0) {
+        data = row.data;
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch(e) {}
+      }
+    } catch(e) { /* use existing localStorage data */ }
     initAdmin();
   } else {
     document.getElementById('pwErr').classList.add('show');
