@@ -464,6 +464,89 @@ footer{
 .foot-text{color:var(--footer-col);font-size:12px;letter-spacing:0.5px;line-height:1.9}
 .foot-date{color:var(--footer-date-col);font-size:11px;margin-top:6px}
 
+/* ── MINI AID SEARCH (per-section) ───────────────────────────────────────── */
+.mini-search-bar{
+  display:flex;gap:8px;align-items:center;margin-bottom:14px;
+}
+.mini-search-input{
+  flex:1;padding:8px 14px;min-width:0;
+  border:1.5px solid var(--glass-border);border-radius:8px;
+  background:var(--glass-bg);color:var(--heading-col);
+  font-family:'Sarabun',sans-serif;font-size:14px;
+  outline:none;transition:border-color 0.25s,background 0.4s ease;
+}
+[data-theme="light"] .mini-search-input{background:rgba(255,255,255,0.80)}
+.mini-search-input::placeholder{color:var(--sub-col);opacity:0.7}
+.mini-search-input:focus{border-color:var(--gold)}
+.mini-search-input.not-found{border-color:var(--red)!important}
+.mini-search-btn{
+  padding:8px 16px;border:none;border-radius:8px;cursor:pointer;white-space:nowrap;
+  background:linear-gradient(135deg,var(--viridian),var(--teal-deep));
+  color:var(--gold-soft);font-family:'Sarabun',sans-serif;font-weight:600;font-size:13px;
+  transition:opacity 0.2s,transform 0.15s;flex-shrink:0;
+}
+.mini-search-btn:hover{opacity:0.88;transform:translateY(-1px)}
+/* Blink animation for found row */
+@keyframes aidBlink{
+  0%  {background-color:rgba(201,175,121,0.55);}
+  20% {background-color:rgba(201,175,121,0.10);}
+  40% {background-color:rgba(201,175,121,0.55);}
+  60% {background-color:rgba(201,175,121,0.10);}
+  80% {background-color:rgba(201,175,121,0.55);}
+  100%{background-color:rgba(201,175,121,0.25);}
+}
+table.rewards tbody tr.aid-blink{
+  animation:aidBlink 1.2s ease forwards;
+  outline:2px solid rgba(201,175,121,0.70);outline-offset:-2px;
+}
+/* ── (old aid-result-found kept for colour vars reference only) ──────────── */
+.aid-result-found .result-name{
+  font-family:'Trirong',serif;font-weight:600;font-size:15px;
+  color:var(--heading-col);
+}
+.aid-result-found .result-aid{
+  font-family:'Courier New',monospace;font-size:13px;font-weight:700;
+  color:var(--td-aid-col);user-select:all;
+}
+.aid-result-found .result-reward{
+  color:var(--td-reward-col);font-weight:700;font-family:'Trirong',serif;font-size:14px;
+  grid-column:2/-1;
+}
+.aid-result-not-found{
+  background:rgba(180,83,9,0.12);
+  border:1.5px solid rgba(180,83,9,0.30);
+  border-radius:10px;padding:14px 16px;
+  color:var(--heading-col);font-family:'Trirong',serif;font-size:14px;
+  text-align:center;
+}
+/* Highlight matching rows in tables */
+table.rewards tbody tr.aid-match{
+  background:rgba(64,130,109,0.30) !important;
+  outline:2px solid rgba(64,195,145,0.60);
+  outline-offset:-2px;
+}
+
+/* ── THEME TRANSITION ─────────────────────────────────────────────────────── */
+body,
+.hero,.glass-card,.badge-card,.reward-set-card,
+.event-pill,.theme-toggle,
+footer,
+table.rewards thead tr,
+table.rewards tbody tr,
+.pagination,.pag-btn,
+.status-pill,.badge-body,
+.item-row,.set-header,
+.ddate-main,.ddate-label,
+.sec-head h2,.sec-head .h2-en,
+.mini-search-input,.mini-search-btn{
+  transition:
+    background-color 0.4s ease,
+    background 0.4s ease,
+    color 0.4s ease,
+    border-color 0.4s ease,
+    opacity 0.4s ease;
+}
+
 /* ── MOBILE ──────────────────────────────────────────────────────────────── */
 @media(max-width:640px){
   .wrap{padding:20px 14px 0}
@@ -567,6 +650,12 @@ footer{
       <h2 id="luckyHeading">รายชื่อผู้โชคดี</h2>
       <div class="h2-en" id="luckyHeadingEn">Lucky Draw Winners</div>
     </div>
+    <div class="mini-search-bar">
+      <input class="mini-search-input" id="luckySearchInput" type="text"
+        placeholder="🔍  ค้นหา AID ของคุณ..."
+        onkeydown="if(event.key==='Enter') searchSection('lucky')"/>
+      <button class="mini-search-btn" onclick="searchSection('lucky')">ค้นหา</button>
+    </div>
     <div class="glass-card table-wrap">
       <table class="rewards">
         <thead><tr>
@@ -587,6 +676,12 @@ footer{
       <div class="ornament-row"><span class="ornament-icon">◆</span></div>
       <h2 id="condHeading">รายชื่อผู้ได้รับรางวัล</h2>
       <div class="h2-en" id="condHeadingEn">Reward Recipients</div>
+    </div>
+    <div class="mini-search-bar">
+      <input class="mini-search-input" id="condSearchInput" type="text"
+        placeholder="🔍  ค้นหา AID ของคุณ..."
+        onkeydown="if(event.key==='Enter') searchSection('cond')"/>
+      <button class="mini-search-btn" onclick="searchSection('cond')">ค้นหา</button>
     </div>
     <div class="glass-card table-wrap">
       <table class="rewards">
@@ -610,6 +705,13 @@ footer{
 </footer>
 
 <script>
+// ── XSS SANITISER ─────────────────────────────────────────────────────────
+function sanitise(str) {
+  const d = document.createElement('div');
+  d.textContent = String(str ?? '');
+  return d.innerHTML;
+}
+
 // ── SUPABASE ──────────────────────────────────────────────────────────────
 const SB_URL  = 'https://tkwxdohgqinldpvdkqnt.supabase.co';
 const SB_KEY  = 'sb_publishable_WJ2m36sC0wzUxLHAUiE4kw_bhybHasU';
@@ -675,14 +777,83 @@ let luckyPage = 0, condPage = 0;
 const btn = document.getElementById('themeToggle');
 let currentTheme = localStorage.getItem('tosm_theme') || 'dark';
 
-function applyTheme(theme) {
+function applyTheme(theme, animate) {
   currentTheme = theme;
-  document.documentElement.setAttribute('data-theme', theme);
-  btn.textContent = theme === 'dark' ? '🌙' : '☀️';
-  localStorage.setItem('tosm_theme', theme);
+  if (animate) {
+    // Soft "blink" — fade down, swap, fade back
+    document.body.style.opacity = '0.85';
+    setTimeout(() => {
+      document.documentElement.setAttribute('data-theme', theme);
+      btn.textContent = theme === 'dark' ? '🌙' : '☀️';
+      localStorage.setItem('tosm_theme', theme);
+      document.body.style.opacity = '';
+    }, 150);
+  } else {
+    document.documentElement.setAttribute('data-theme', theme);
+    btn.textContent = theme === 'dark' ? '🌙' : '☀️';
+    localStorage.setItem('tosm_theme', theme);
+  }
 }
-btn.addEventListener('click', () => applyTheme(currentTheme === 'dark' ? 'light' : 'dark'));
-applyTheme(currentTheme);
+btn.addEventListener('click', () => applyTheme(currentTheme === 'dark' ? 'light' : 'dark', true));
+applyTheme(currentTheme, false);
+
+/* ── AID SEARCH (per-section, page-aware) ────────────────────────────────── */
+function searchSection(type) {
+  const inputId = type === 'lucky' ? 'luckySearchInput' : 'condSearchInput';
+  const input   = document.getElementById(inputId);
+  const query   = (input.value || '').toLowerCase().trim();
+  if (!query) return;
+
+  const ev = getActiveEvent();
+  if (!ev) return;
+
+  const list = type === 'lucky'
+    ? (ev.showLuckyDraw !== false ? (ev.luckyDraw || []) : [])
+    : (ev.conditionWinners || []);
+
+  const pp = type === 'lucky' ? (ev.luckyPerPage || 5) : (ev.conditionPerPage || 10);
+
+  // Find first matching index (AID or name)
+  const idx = list.findIndex(w =>
+    (w.aid  || '').toLowerCase().includes(query) ||
+    (w.name || '').toLowerCase().includes(query)
+  );
+
+  if (idx === -1) {
+    // Flash red border and shake placeholder
+    input.classList.add('not-found');
+    const orig = input.placeholder;
+    input.placeholder = '😔 ไม่พบ AID นี้ ลองใหม่อีกครั้ง';
+    input.value = '';
+    setTimeout(() => {
+      input.classList.remove('not-found');
+      input.placeholder = orig;
+    }, 2200);
+    return;
+  }
+
+  // Navigate to the correct page
+  const targetPage = Math.floor(idx / pp);
+  if (type === 'lucky') luckyPage = targetPage;
+  else condPage = targetPage;
+  render();
+
+  // After render, blink the matching row and scroll to it
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      const bodyId = type === 'lucky' ? 'luckyDrawBody' : 'conditionBody';
+      const posOnPage = idx % pp;
+      const rows = document.querySelectorAll('#' + bodyId + ' tr');
+      const targetRow = rows[posOnPage];
+      if (!targetRow) return;
+      targetRow.classList.remove('aid-blink');
+      void targetRow.offsetWidth; // force reflow to restart animation
+      targetRow.classList.add('aid-blink');
+      targetRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      setTimeout(() => targetRow.classList.remove('aid-blink'), 1400);
+    });
+  });
+}
 
 /* ── DATA ──────────────────────────────────────────────────────────────── */
 function getActiveEvent() {
@@ -716,12 +887,12 @@ function render() {
   const ch  = ev.rewardChannel || 'กล่องจดหมายในเกม';
   const cc  = CHANNEL_COLORS[ch] || { bg:'#0284C7', icon:'📬' };
   const lnk = (ev.rewardChannelLink || '').trim();
-  const badgeInner = `<span style="display:inline-flex;align-items:center;gap:8px;">${cc.icon} ${ch}</span>`;
+  const badgeInner = `<span style="display:inline-flex;align-items:center;gap:8px;">${sanitise(cc.icon)} ${sanitise(ch)}</span>`;
   document.getElementById('channelBadgeWrap').innerHTML = lnk
-    ? `<a href="${lnk}" target="_blank" rel="noopener" class="channel-type-badge" style="background:${cc.bg};text-decoration:none;cursor:pointer;">${badgeInner}</a>`
-    : `<span class="channel-type-badge" style="background:${cc.bg};cursor:default;opacity:0.85;">${badgeInner}</span>`;
+    ? `<a href="${sanitise(lnk)}" target="_blank" rel="noopener" class="channel-type-badge" style="background:${sanitise(cc.bg)};text-decoration:none;cursor:pointer;">${badgeInner}</a>`
+    : `<span class="channel-type-badge" style="background:${sanitise(cc.bg)};cursor:default;opacity:0.85;">${badgeInner}</span>`;
   document.getElementById('channelInstructions').innerHTML =
-    (ev.rewardChannelInstructions || '').split('\n').filter(l=>l.trim()).map(l=>`<li>${l}</li>`).join('');
+    (ev.rewardChannelInstructions || '').split('\n').filter(l=>l.trim()).map(l=>`<li>${sanitise(l)}</li>`).join('');
 
   // Status pill
   const pill = document.getElementById('statusPill');
@@ -737,7 +908,7 @@ function render() {
     icon.textContent = type === 'success' ? '✓' : '⚠️';
   }
   document.getElementById('statusText').textContent = ev.status || 'กำลังดำเนินการ';
-  document.getElementById('statusDesc').innerHTML = (ev.statusDesc||'').replace(/\n/g,'<br/>');
+  document.getElementById('statusDesc').innerHTML = sanitise(ev.statusDesc||'').replace(/\n/g,'<br/>');
 
   // Reward sets
   const sc = document.getElementById('rewardSetsContainer');
@@ -745,17 +916,17 @@ function render() {
   (ev.rewardSets||[]).forEach((set,si)=>{
     const c = document.createElement('div'); c.className='reward-set-card glass-card';
     const iconHtml = set.icon
-      ? `<div class="set-letter" style="background:transparent;box-shadow:none;"><img src="${set.icon}" style="width:44px;height:44px;object-fit:contain;" alt=""/></div>`
+      ? `<div class="set-letter" style="background:transparent;box-shadow:none;"><img src="${sanitise(set.icon)}" style="width:44px;height:44px;object-fit:contain;" alt=""/></div>`
       : '';
     c.innerHTML=`<div class="set-header">
       ${iconHtml}
-      <div class="set-title">${set.label}<span class="en">${set.labelEn}</span></div>
+      <div class="set-title">${sanitise(set.label)}<span class="en">${sanitise(set.labelEn)}</span></div>
     </div>
     <div class="set-items">${(set.items||[]).map(item=>`
       <div class="item-row">
-        <div class="item-img-wrap"><img src="${item.img}" alt="${item.name}" loading="lazy"/></div>
-        <div class="item-name">${item.name}</div>
-        <div class="item-amount">${item.amount}</div>
+        <div class="item-img-wrap"><img src="${sanitise(item.img)}" alt="${sanitise(item.name)}" loading="lazy"/></div>
+        <div class="item-name">${sanitise(item.name)}</div>
+        <div class="item-amount">${sanitise(item.amount)}</div>
       </div>`).join('')}</div>`;
     sc.appendChild(c);
   });
@@ -778,9 +949,9 @@ function render() {
     const slice = list.slice(luckyPage*pp,(luckyPage+1)*pp);
     document.getElementById('luckyDrawBody').innerHTML = slice.map((w,i)=>`<tr>
       <td class="td-num" data-label="#">${luckyPage*pp+i+1}</td>
-      <td class="td-name" data-label="ชื่อ">${w.name}</td>
-      <td class="td-aid"  data-label="AID">${w.aid}</td>
-      <td class="td-reward" data-label="รางวัล">${w.reward}</td>
+      <td class="td-name" data-label="ชื่อ">${sanitise(w.name)}</td>
+      <td class="td-aid"  data-label="AID">${sanitise(w.aid)}</td>
+      <td class="td-reward" data-label="รางวัล">${sanitise(w.reward)}</td>
     </tr>`).join('');
     renderPag('luckyPagination',luckyPage,totalPages,'lucky');
   }
@@ -793,9 +964,9 @@ function render() {
   const cslice = clist.slice(condPage*cp,(condPage+1)*cp);
   document.getElementById('conditionBody').innerHTML = cslice.map((w,i)=>`<tr>
     <td class="td-num" data-label="#">${condPage*cp+i+1}</td>
-    <td class="td-name" data-label="ชื่อ">${w.name}</td>
-    <td class="td-aid"  data-label="AID">${w.aid}</td>
-    <td class="td-reward" data-label="รางวัล">${w.reward}</td>
+    <td class="td-name" data-label="ชื่อ">${sanitise(w.name)}</td>
+    <td class="td-aid"  data-label="AID">${sanitise(w.aid)}</td>
+    <td class="td-reward" data-label="รางวัล">${sanitise(w.reward)}</td>
   </tr>`).join('');
   renderPag('condPagination',condPage,ctotalPages,'cond');
 
