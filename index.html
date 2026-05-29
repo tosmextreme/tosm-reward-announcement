@@ -962,15 +962,15 @@ table.guild-display tbody td:last-child{border-right:none}
 <body>
 
 <!-- THEME TOGGLE -->
-<button class="theme-toggle" id="themeToggle" title="สลับธีม" aria-label="Toggle theme">🌙</button>
+<button type="button" class="theme-toggle" id="themeToggle" title="สลับธีม" aria-label="Toggle theme">🌙</button>
 
 <div class="wrap">
 
   <!-- HERO (2-slide carousel) -->
   <header class="hero" style="position:relative;">
     <!-- Arrow buttons -->
-    <button class="hero-arrow hero-arrow-left dimmed" id="heroArrowLeft" aria-label="สไลด์ก่อนหน้า" onclick="heroArrowNav(-1)">&#8249;</button>
-    <button class="hero-arrow hero-arrow-right" id="heroArrowRight" aria-label="สไลด์ถัดไป" onclick="heroArrowNav(1)">&#8250;</button>
+    <button type="button" class="hero-arrow hero-arrow-left dimmed" id="heroArrowLeft" aria-label="สไลด์ก่อนหน้า" onclick="heroArrowNav(-1)">&#8249;</button>
+    <button type="button" class="hero-arrow hero-arrow-right" id="heroArrowRight" aria-label="สไลด์ถัดไป" onclick="heroArrowNav(1)">&#8250;</button>
 
     <div class="hero-carousel-viewport">
       <div class="hero-slides-track" id="heroSlidesTrack">
@@ -1068,8 +1068,8 @@ table.guild-display tbody td:last-child{border-right:none}
     <div class="mini-search-bar">
       <input class="mini-search-input" id="luckySearchInput" type="text"
         placeholder="🔍  ค้นหา AID ของคุณ..."
-        onkeydown="if(event.key==='Enter') searchSection('lucky')"/>
-      <button class="mini-search-btn" onclick="searchSection('lucky')">ค้นหา</button>
+        onkeydown="if(event.key==='Enter'){event.preventDefault();searchSection('lucky');}"/>
+      <button type="button" class="mini-search-btn" onclick="searchSection('lucky')">ค้นหา</button>
     </div>
     <div class="glass-card table-wrap">
       <table class="rewards">
@@ -1095,8 +1095,8 @@ table.guild-display tbody td:last-child{border-right:none}
     <div class="mini-search-bar">
       <input class="mini-search-input" id="condSearchInput" type="text"
         placeholder="🔍  ค้นหา AID ของคุณ..."
-        onkeydown="if(event.key==='Enter') searchSection('cond')"/>
-      <button class="mini-search-btn" onclick="searchSection('cond')">ค้นหา</button>
+        onkeydown="if(event.key==='Enter'){event.preventDefault();searchSection('cond');}"/>
+      <button type="button" class="mini-search-btn" onclick="searchSection('cond')">ค้นหา</button>
     </div>
     <div class="glass-card table-wrap">
       <table class="rewards">
@@ -1389,6 +1389,7 @@ function renderGuild() {
   servers.forEach((srv, index) => {
     const accent = GUILD_SERVER_ACCENTS[index % GUILD_SERVER_ACCENTS.length];
     const p = document.createElement('button');
+    p.type = 'button';
     p.className = 'event-pill' + (srv.id === guildActiveServerId ? ' active' : '');
     p.style.setProperty('--srv-accent', accent);
     if (srv.id === guildActiveServerId) {
@@ -1453,6 +1454,7 @@ function renderGuild() {
     ];
     allPills.forEach(pill => {
       const btn = document.createElement('button');
+      btn.type = 'button';
       btn.className = 'gwf-pill' + (activeWeek === pill.val ? ' active' : '');
       if (activeWeek === pill.val) {
         btn.style.background = srvAccent;
@@ -1480,6 +1482,7 @@ function renderGuild() {
     searchInput.style.paddingRight = '34px';
 
     const clearBtn = document.createElement('button');
+    clearBtn.type = 'button';
     clearBtn.className = 'guild-search-clear';
     clearBtn.textContent = '×';
     clearBtn.title = 'ล้างการค้นหา';
@@ -1577,6 +1580,7 @@ function render() {
   }
   visibleEvents.forEach(e => {
     const p = document.createElement('button');
+    p.type = 'button';
     p.className = 'event-pill' + (e.id === appData.activeEventId ? ' active' : '');
     p.textContent = e.name;
     p.onclick = () => { appData.activeEventId = e.id; luckyPage = 0; condPage = 0; render(); };
@@ -1679,7 +1683,7 @@ function renderPag(id, cur, total, type) {
   const el = document.getElementById(id);
   if (total <= 1) { el.innerHTML=''; return; }
   el.innerHTML=`
-    <button class="pag-btn" onclick="changePage('${type}',${cur-1})" ${cur===0?'disabled':''}>‹</button>
+    <button type="button" class="pag-btn" onclick="changePage('${type}',${cur-1})" ${cur===0?'disabled':''}>‹</button>
     <span class="pag-info">
       หน้า
       <input class="pag-num-input" type="number" min="1" max="${total}" value="${cur+1}"
@@ -1687,7 +1691,7 @@ function renderPag(id, cur, total, type) {
         onblur="jumpPage('${type}', this.value, ${total})"/>
       / ${total}
     </span>
-    <button class="pag-btn" onclick="changePage('${type}',${cur+1})" ${cur>=total-1?'disabled':''}>›</button>`;
+    <button type="button" class="pag-btn" onclick="changePage('${type}',${cur+1})" ${cur>=total-1?'disabled':''}>›</button>`;
 }
 
 function changePage(type, page) {
