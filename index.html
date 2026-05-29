@@ -183,6 +183,7 @@ body{
   max-width:340px;width:75%;height:auto;
   filter:drop-shadow(0 4px 12px rgba(0,0,0,0.55));
   margin-bottom:10px;
+  pointer-events:none;user-select:none;-webkit-user-drag:none;
 }
 .hero-sub-th{
   font-family:'Trirong',serif;font-weight:600;
@@ -526,6 +527,308 @@ table.rewards tbody tr.aid-match{
   outline-offset:-2px;
 }
 
+/* ── GUILD MODE COLOUR OVERRIDES ──────────────────────────────────────────── */
+:root[data-mode="guild"] {
+  /* Core purples */
+  --teal:        #4A1870;
+  --teal-deep:   #2D0F4A;
+  --viridian:    #7B35A8;
+
+  /* Backgrounds — dark theme (default) */
+  --body-bg:     radial-gradient(ellipse 90% 70% at 50% 15%,#3D1157 0%,#21083A 35%,#130525 65%,#080210 100%);
+  --hero-bg:     rgba(45,15,74,0.90);
+  --hero-border: rgba(192,109,212,0.40);
+  --glass-bg:    rgba(30,10,55,0.75);
+  --glass-border:rgba(192,109,212,0.28);
+  --glass-inner: rgba(192,109,212,0.14);
+
+  /* Pill states */
+  --pill-bg:         rgba(74,24,112,0.40);
+  --pill-color:      rgba(232,200,245,0.80);
+  --pill-border:     rgba(192,109,212,0.45);
+  --pill-hover-bg:   rgba(123,53,168,0.60);
+  --pill-active:     linear-gradient(135deg,#4A1870,#2D0F4A);
+
+  /* Text */
+  --heading-col:     #E8C8F5;
+  --sub-col:         rgba(232,200,245,0.65);
+  --date-col:        #E8C8F5;
+
+  /* Ornaments */
+  --ornament-line:   rgba(192,109,212,0.55);
+  --ornament-icon:   #C06DD4;
+
+  /* Badge body */
+  --badge-body-bg:   rgba(0,0,0,0.20);
+  --badge-body-bdr:  rgba(192,109,212,0.18);
+  --badge-body-col:  rgba(232,200,245,0.80);
+
+  /* Set header */
+  --set-header-bg:   linear-gradient(135deg,rgba(74,24,112,0.80),rgba(45,15,74,0.80));
+  --set-header-bdr:  rgba(192,109,212,0.25);
+
+  /* Items */
+  --item-bg:         rgba(255,255,255,0.07);
+  --item-border:     rgba(192,109,212,0.20);
+  --item-hover:      rgba(123,53,168,0.25);
+  --item-name-col:   #E8C8F5;
+  --item-amt-col:    #C06DD4;
+  --item-amt-bg:     rgba(123,53,168,0.30);
+  --item-amt-bdr:    rgba(123,53,168,0.40);
+
+  /* Table */
+  --tbl-head-bg:     rgba(45,15,74,0.85);
+  --tbl-th-col:      #E8C8F5;
+  --tbl-row-bdr:     rgba(192,109,212,0.15);
+  --tbl-even-bg:     rgba(123,53,168,0.08);
+  --tbl-hover-bg:    rgba(123,53,168,0.18);
+  --tbl-td-bdr:      rgba(192,109,212,0.08);
+  --td-num-col:      rgba(192,109,212,0.70);
+  --td-name-col:     #E8C8F5;
+  --td-aid-col:      rgba(232,200,245,0.75);
+  --td-reward-col:   rgba(192,109,212,0.90);
+
+  /* Pagination */
+  --pag-bg:          rgba(74,24,112,0.60);
+  --pag-border:      rgba(192,109,212,0.30);
+  --pag-col:         #E8C8F5;
+  --pag-info-col:    rgba(232,200,245,0.65);
+
+  /* Footer */
+  --footer-bg:       rgba(21,8,32,0.85);
+  --footer-bdr:      rgba(192,109,212,0.30);
+  --footer-col:      rgba(232,200,245,0.70);
+  --footer-date-col: rgba(232,200,245,0.40);
+
+  /* Toggle */
+  --toggle-bg:       rgba(74,24,112,0.70);
+  --toggle-bdr:      rgba(192,109,212,0.50);
+  --toggle-col:      #E8C8F5;
+}
+
+/* Guild mode — light theme override */
+:root[data-theme="light"][data-mode="guild"] {
+  --body-bg:          radial-gradient(ellipse 90% 70% at 50% 15%,#E8D0FA 0%,#D4B0F0 30%,#C090E8 60%,#A870D8 100%);
+  --hero-bg:          rgba(74,24,112,0.93);
+  --hero-border:      rgba(192,109,212,0.55);
+  --glass-bg:         rgba(255,255,255,0.97);
+  --glass-border:     rgba(74,24,112,0.38);
+  --glass-inner:      rgba(74,24,112,0.18);
+  --pill-bg:          rgba(74,24,112,0.07);
+  --pill-color:       #4A1870;
+  --pill-border:      rgba(74,24,112,0.38);
+  --pill-hover-bg:    rgba(123,53,168,0.14);
+  --pill-active:      linear-gradient(135deg,#4A1870,#2D0F4A);
+  --heading-col:      #3A1060;
+  --sub-col:          #6B2D98;
+  --date-col:         #3A1060;
+  --ornament-line:    rgba(74,24,112,0.40);
+  --ornament-icon:    #7B35A8;
+  --badge-body-bg:    rgba(123,53,168,0.08);
+  --badge-body-bdr:   rgba(74,24,112,0.28);
+  --badge-body-col:   #1A1025;
+  --set-header-bg:    linear-gradient(135deg,rgba(74,24,112,0.92),rgba(45,15,74,0.92));
+  --set-header-bdr:   rgba(192,109,212,0.25);
+  --item-bg:          rgba(123,53,168,0.08);
+  --item-border:      rgba(74,24,112,0.22);
+  --item-hover:       rgba(123,53,168,0.18);
+  --item-name-col:    #1A1025;
+  --item-amt-col:     #3A1060;
+  --item-amt-bg:      rgba(123,53,168,0.16);
+  --item-amt-bdr:     rgba(123,53,168,0.35);
+  --tbl-head-bg:      #4A1870;
+  --tbl-th-col:       #F0D8FF;
+  --tbl-row-bdr:      rgba(74,24,112,0.20);
+  --tbl-even-bg:      rgba(123,53,168,0.08);
+  --tbl-hover-bg:     rgba(123,53,168,0.14);
+  --tbl-td-bdr:       rgba(74,24,112,0.12);
+  --td-num-col:       #6B2D98;
+  --td-name-col:      #1A1025;
+  --td-aid-col:       #6B2D98;
+  --td-reward-col:    #3A1060;
+  --pag-bg:           rgba(74,24,112,0.08);
+  --pag-border:       rgba(74,24,112,0.35);
+  --pag-col:          #3A1060;
+  --pag-info-col:     rgba(74,24,112,0.70);
+  --footer-bg:        #4A1870;
+  --footer-bdr:       rgba(192,109,212,0.40);
+  --footer-col:       rgba(232,200,245,0.88);
+  --footer-date-col:  rgba(232,200,245,0.60);
+  --toggle-bg:        rgba(255,255,255,0.88);
+  --toggle-bdr:       rgba(74,24,112,0.40);
+  --toggle-col:       #3A1060;
+}
+
+/* Guild light mode — extra card & table definition */
+:root[data-theme="light"][data-mode="guild"] .glass-card {
+  box-shadow: 0 4px 24px rgba(74,24,112,0.18), 0 1px 4px rgba(74,24,112,0.10);
+}
+:root[data-theme="light"][data-mode="guild"] .guild-table-outer {
+  border-color: rgba(74,24,112,0.38);
+  box-shadow: 0 4px 16px rgba(74,24,112,0.14);
+}
+:root[data-theme="light"][data-mode="guild"] .guild-section-head {
+  border-color: rgba(74,24,112,0.38);
+  border-bottom: 1px solid rgba(74,24,112,0.22);
+}
+:root[data-theme="light"][data-mode="guild"] table.guild-display tbody {
+  background: rgba(255,255,255,0.95);
+}
+:root[data-theme="light"][data-mode="guild"] table.guild-display thead th {
+  border-right-color: rgba(255,255,255,0.18);
+}
+:root[data-theme="light"][data-mode="guild"] .gwf-pill {
+  border-color: rgba(74,24,112,0.35);
+  color: #5A2080;
+}
+:root[data-theme="light"][data-mode="guild"] .gwf-pill:hover {
+  background: rgba(74,24,112,0.10);
+  color: #3A1060;
+}
+:root[data-theme="light"][data-mode="guild"] .gwf-pill.active {
+  background: #4A1870;
+  border-color: #4A1870;
+  color: #F0D8FF;
+}
+
+/* ── HERO CAROUSEL ────────────────────────────────────────────────────────── */
+.hero-carousel-viewport {
+  overflow: hidden;
+  border-radius: 10px;
+  position: relative;
+}
+.hero-slides-track {
+  display: flex;
+  transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  will-change: transform;
+  cursor: grab;
+}
+.hero-slides-track.dragging {
+  cursor: grabbing;
+  transition: none;
+}
+.hero-slide {
+  min-width: 100%;
+  flex-shrink: 0;
+}
+.hero-dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 14px;
+  position: relative;
+  z-index: 2;
+}
+.hero-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.35);
+  border: 1.5px solid rgba(255,255,255,0.60);
+  cursor: pointer;
+  transition: background 0.3s, transform 0.2s;
+}
+.hero-dot.active {
+  background: #fff;
+  transform: scale(1.25);
+}
+
+/* ── HERO ARROW BUTTONS ───────────────────────────────────────────────────── */
+.hero-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.18);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 1.5px solid rgba(255,255,255,0.30);
+  color: #fff;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0.60;
+  transition: opacity 0.2s, background 0.2s, transform 0.15s;
+  user-select: none;
+  padding: 0;
+}
+.hero-arrow:hover { opacity: 1; background: rgba(255,255,255,0.30); transform: translateY(-50%) scale(1.08); }
+.hero-arrow.dimmed { opacity: 0.30; cursor: default; pointer-events: none; }
+.hero-arrow-left  { left: 10px; }
+.hero-arrow-right { right: 10px; }
+@media(max-width:600px){
+  .hero-arrow { opacity: 0.80; }
+  .hero-arrow.dimmed { opacity: 0.20; }
+}
+
+/* ── HERO SWIPE HINT ──────────────────────────────────────────────────────── */
+.hero-swipe-hint {
+  position: absolute;
+  bottom: 52px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  background: rgba(0,0,0,0.55);
+  color: #fff;
+  font-family: 'Sarabun', sans-serif;
+  font-size: 13px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  animation: swipeHintFade 2s ease forwards;
+}
+@keyframes swipeHintFade {
+  0%   { opacity: 0; }
+  20%  { opacity: 1; }
+  70%  { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* ── CONTENT WRAP VISIBILITY ─────────────────────────────────────────────── */
+:root[data-mode="guild"] .reward-content-wrap { display: none; }
+:root[data-mode="guild"] .guild-content-wrap  { display: block; }
+:root[data-mode="reward"] .reward-content-wrap { display: block; }
+:root[data-mode="reward"] .guild-content-wrap  { display: none; }
+
+/* ── GUILD MODE — HIDE REWARD-ONLY ELEMENTS ─────────────────────────────── */
+:root[data-mode="guild"] .event-selector-wrap  { display: none; }
+:root[data-mode="guild"] .delivery-date-wrap   { display: none; }
+
+/* ── GUILD WEEK FILTER TOGGLE ────────────────────────────────────────────── */
+.guild-week-filter {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  margin-left: auto;
+}
+.gwf-pill {
+  padding: 4px 11px;
+  border-radius: 14px;
+  border: 1.5px solid rgba(192,109,212,0.40);
+  background: transparent;
+  color: rgba(232,200,245,0.70);
+  font-family: 'Sarabun', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.gwf-pill:hover { background: rgba(74,24,112,0.35); color: #E8C8F5; }
+.gwf-pill.active {
+  background: #fff;
+  border-color: #fff;
+  color: #4A1870;
+}
+.guild-section-head {
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
 /* ── THEME TRANSITION ─────────────────────────────────────────────────────── */
 body,
 .hero,.glass-card,.badge-card,.reward-set-card,
@@ -545,6 +848,91 @@ table.rewards tbody tr,
     color 0.4s ease,
     border-color 0.4s ease,
     opacity 0.4s ease;
+}
+
+/* ── GUILD NAME SEARCH ───────────────────────────────────────────────────── */
+.guild-search-wrap {
+  position: relative;
+  margin: 10px 0 0 0;
+  width: 100%;
+}
+.guild-search-wrap .mini-search-input {
+  width: 100%;
+  padding-right: 34px;
+}
+.guild-search-clear {
+  position: absolute;
+  right: 9px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--sub-col);
+  font-size: 15px;
+  line-height: 1;
+  padding: 2px 4px;
+  display: none;
+  opacity: 0.7;
+  transition: opacity 0.15s;
+}
+.guild-search-clear:hover { opacity: 1; }
+
+/* ── GUILD DISPLAY ───────────────────────────────────────────────────────── */
+.guild-server-selector{
+  margin-top:20px;text-align:center;
+  overflow-x:auto;white-space:nowrap;
+  padding:10px 20px;scrollbar-width:none;
+}
+.guild-server-selector::-webkit-scrollbar{display:none}
+.guild-section{margin-top:36px}
+.guild-section-head{
+  display:flex;align-items:center;gap:10px;
+  padding:12px 16px;border-radius:12px 12px 0 0;
+  background:var(--tbl-head-bg);
+  border:1.5px solid var(--glass-border);border-bottom:none;
+}
+.guild-section-head h3{
+  font-family:'Trirong',serif;font-weight:700;font-size:16px;
+  color:var(--tbl-th-col);margin:0;
+}
+.guild-table-outer{
+  overflow:hidden;border-radius:0 0 12px 12px;
+  border:1.5px solid var(--glass-border);border-top:none;
+}
+table.guild-display{width:100%;border-collapse:collapse}
+table.guild-display thead tr{background:var(--tbl-head-bg)}
+table.guild-display thead th{
+  color:var(--tbl-th-col);font-family:'Trirong',serif;font-weight:600;font-size:12px;
+  text-align:center;padding:10px 12px;letter-spacing:0.3px;
+  border-right:1px solid rgba(255,255,255,0.10);
+}
+table.guild-display thead th:first-child{text-align:left}
+table.guild-display thead th:last-child{border-right:none}
+table.guild-display tbody tr{border-bottom:1px solid var(--tbl-row-bdr)}
+table.guild-display tbody tr:last-child{border-bottom:none}
+table.guild-display tbody tr:nth-child(even){background:var(--tbl-even-bg)}
+table.guild-display tbody tr:hover{background:var(--tbl-hover-bg)}
+table.guild-display tbody td{
+  padding:10px 12px;font-size:14px;text-align:center;
+  border-right:1px solid var(--tbl-td-bdr);vertical-align:middle;
+}
+table.guild-display tbody td:first-child{text-align:left}
+table.guild-display tbody td:last-child{border-right:none}
+.guild-td-rank{
+  font-family:'Cinzel Decorative',serif;font-weight:700;font-size:12px;
+  color:var(--td-num-col);width:36px;text-align:center;
+}
+.guild-td-name{font-family:'Trirong',serif;font-weight:600;color:var(--td-name-col)}
+.guild-td-score{color:var(--td-reward-col);font-weight:700;font-family:'Trirong',serif}
+.guild-td-total{
+  color:var(--td-reward-col);font-family:'Cinzel Decorative',serif;
+  font-weight:700;font-size:13px;
+}
+.guild-empty-row td{
+  text-align:center;padding:24px 16px;
+  color:var(--sub-col);font-size:13px;
+  background:transparent;
 }
 
 /* ── MOBILE ──────────────────────────────────────────────────────────────── */
@@ -578,17 +966,44 @@ table.rewards tbody tr,
 
 <div class="wrap">
 
-  <!-- HERO -->
-  <header class="hero">
-    <div class="hero-inner">
-      <img src="./tosm-logo.png" class="hero-logo" alt="TOSM Extreme"/>
-      <div class="hero-sub-th">ประกาศรายชื่อผู้ได้รับรางวัล</div>
-      <div class="hero-sub-en">Reward Announcement</div>
+  <!-- HERO (2-slide carousel) -->
+  <header class="hero" style="position:relative;">
+    <!-- Arrow buttons -->
+    <button class="hero-arrow hero-arrow-left dimmed" id="heroArrowLeft" aria-label="สไลด์ก่อนหน้า" onclick="heroArrowNav(-1)">&#8249;</button>
+    <button class="hero-arrow hero-arrow-right" id="heroArrowRight" aria-label="สไลด์ถัดไป" onclick="heroArrowNav(1)">&#8250;</button>
+
+    <div class="hero-carousel-viewport">
+      <div class="hero-slides-track" id="heroSlidesTrack">
+        <!-- Slide 1: Reward Mode -->
+        <div class="hero-slide">
+          <div class="hero-inner">
+            <img src="./tosm-logo.png" class="hero-logo" alt="TOSM Extreme" draggable="false" ondragstart="return false"/>
+            <div class="hero-sub-th" id="heroRewardTitleEl">ประกาศรายชื่อผู้ได้รับรางวัล</div>
+            <div class="hero-sub-en" id="heroRewardSubtitleEl">Reward Announcement</div>
+          </div>
+        </div>
+        <!-- Slide 2: Guild Mode -->
+        <div class="hero-slide" id="heroSlideGuild">
+          <div class="hero-inner">
+            <img src="./tosm-logo.png" class="hero-logo" alt="TOSM Extreme" draggable="false" ondragstart="return false"/>
+            <div class="hero-sub-th" id="heroGuildTitleEl">อัปเดตคะแนนการแข่งขันกิลด์</div>
+            <div class="hero-sub-en" id="heroGuildSubtitleEl">Update Guild Challenge Point</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Dot indicators -->
+    <div class="hero-dots" id="heroDots" style="position:relative;">
+      <div class="hero-dot active" data-index="0" onclick="goToSlide(0)"></div>
+      <div class="hero-dot" data-index="1" onclick="goToSlide(1)"></div>
     </div>
   </header>
 
   <!-- EVENT SELECTOR -->
   <div class="event-selector-wrap" id="eventSelector"></div>
+
+  <!-- REWARD CONTENT WRAP -->
+  <div class="reward-content-wrap">
 
   <!-- DELIVERY DATE -->
   <div class="delivery-date-wrap">
@@ -697,6 +1112,19 @@ table.rewards tbody tr,
     <div class="pagination" id="condPagination"></div>
   </section>
 
+  </div><!-- /reward-content-wrap -->
+
+  <!-- GUILD CONTENT WRAP -->
+  <div class="guild-content-wrap">
+
+    <!-- Server selector (pill tabs) -->
+    <div class="guild-server-selector" id="guildServerSelector"></div>
+
+    <!-- Guild data sections (rendered by renderGuild()) -->
+    <div id="guildDataContainer" style="margin-top:8px;padding-bottom:28px"></div>
+
+  </div><!-- /guild-content-wrap -->
+
 </div>
 
 <footer>
@@ -710,6 +1138,19 @@ function sanitise(str) {
   const d = document.createElement('div');
   d.textContent = String(str ?? '');
   return d.innerHTML;
+}
+
+// ── NAME CENSORING ─────────────────────────────────────────────────────────
+// "UserAlbotsd" → "Use*****tsd". Applied to winner names when ev.censorNames is on.
+function censorName(name) {
+  const t = String(name == null ? '' : name).trim();
+  if (!t) return '';
+  if (t.length <= 2) return t[0] + '*****';
+  const keep = t.length <= 6 ? 1 : 3;
+  return t.slice(0, keep) + '*****' + t.slice(t.length - keep);
+}
+function displayName(ev, name) {
+  return (ev && ev.censorNames) ? censorName(name) : name;
 }
 
 // ── SUPABASE ──────────────────────────────────────────────────────────────
@@ -735,17 +1176,21 @@ const DEFAULT_DATA = {
     showLuckyDraw:true, luckyPerPage:5, conditionPerPage:10,
     status:'กำลังดำเนินการ', statusType:'pending',
     statusDesc:'ขณะนี้ทีมงานกำลังดำเนินการจัดส่งรางวัลให้ผู้ได้รับรางวัลทุกท่าน\nสถานะจะอัปเดตเมื่อการจัดส่งเสร็จสมบูรณ์',
+    heroRewardTitle:'ประกาศรายชื่อผู้ได้รับรางวัล',
+    heroRewardSubtitle:'REWARD ANNOUNCEMENT',
+    heroGuildTitle:'อัปเดตคะแนนการแข่งขันกิลด์',
+    heroGuildSubtitle:'UPDATE GUILD CHALLENGE POINT',
     luckyDraw:[
-      {name:'xx*****xx',aid:'123456789',reward:'รางวัล ชุด A'},
-      {name:'xx*****xx',aid:'123456789',reward:'รางวัล ชุด A'},
-      {name:'xx*****xx',aid:'123456789',reward:'รางวัล ชุด A'}
+      {name:'xx*****xx',aid:'',reward:'รางวัล ชุด A'},
+      {name:'xx*****xx',aid:'',reward:'รางวัล ชุด A'},
+      {name:'xx*****xx',aid:'',reward:'รางวัล ชุด A'}
     ],
     conditionWinners:[
-      {name:'xx*****xx',aid:'123456789',reward:'รางวัล ชุด B'},
-      {name:'xx*****xx',aid:'123456789',reward:'รางวัล ชุด B'},
-      {name:'xx*****xx',aid:'123456789',reward:'รางวัล ชุด B'},
-      {name:'xx*****xx',aid:'123456789',reward:'รางวัล ชุด B'},
-      {name:'xx*****xx',aid:'123456789',reward:'รางวัล ชุด B'}
+      {name:'xx*****xx',aid:'',reward:'รางวัล ชุด B'},
+      {name:'xx*****xx',aid:'',reward:'รางวัล ชุด B'},
+      {name:'xx*****xx',aid:'',reward:'รางวัล ชุด B'},
+      {name:'xx*****xx',aid:'',reward:'รางวัล ชุด B'},
+      {name:'xx*****xx',aid:'',reward:'รางวัล ชุด B'}
     ],
     rewardSets:[
       {label:'รางวัล ชุด A',labelEn:'Reward Set A',icon:'',items:[
@@ -770,6 +1215,43 @@ let appData = (() => {
   try { const s = localStorage.getItem(STORAGE_KEY); return s ? JSON.parse(s) : JSON.parse(JSON.stringify(DEFAULT_DATA)); }
   catch(e) { return JSON.parse(JSON.stringify(DEFAULT_DATA)); }
 })();
+
+// ── GUILD DATA ──────────────────────────────────────────────────────────────
+const GUILD_STORAGE_KEY = 'tosm_guild_data_v1';
+const _gInitId = 'server_laima_default';
+const DEFAULT_GUILD_DATA = {
+  servers: [{ id: _gInitId, name: 'Laima', uskaQuest: [], fieldBoss: [], cp: [], conquest: [] }],
+  activeServerId: _gInitId
+};
+let guildData = { servers: [], activeServerId: null };
+
+const GUILD_CAT_CONFIG = [
+  { key: 'uskaQuest', label: '⚔️ Uska Quest' },
+  { key: 'fieldBoss', label: '🐉 Field Boss' },
+  { key: 'cp',        label: '💠 CP' },
+  { key: 'conquest',  label: '🏆 Conquest' }
+];
+let guildActiveServerId = null;
+
+// Week filter state — per category
+const guildWeekFilter = { uskaQuest: 'all', fieldBoss: 'all', cp: 'all', conquest: 'all' };
+
+// Guild name filter state — per category
+const guildNameFilter = { uskaQuest: '', fieldBoss: '', cp: '', conquest: '' };
+
+// Per-server accent colours
+const GUILD_SERVER_ACCENTS = [
+  '#C06DD4', // orchid-magenta — Laima
+  '#5B8FA8', // muted teal-blue — Vakarine
+  '#9B59B6', // medium purple — Giltine
+  '#4A7FA8', // steel blue — Austeja
+  '#7B4DB3', // violet — Jurate
+  '#B8467A', // rose-purple — 6th+
+];
+
+const WEEK_LABELS = ['สัปดาห์ที่ 1', 'สัปดาห์ที่ 2', 'สัปดาห์ที่ 3', 'สัปดาห์ที่ 4'];
+const WEEK_KEYS   = ['w1', 'w2', 'w3', 'w4'];
+const WEEK_SHORT  = ['สป.1', 'สป.2', 'สป.3', 'สป.4'];
 
 let luckyPage = 0, condPage = 0;
 
@@ -860,9 +1342,230 @@ function getActiveEvent() {
   return appData.events.find(e => e.id === appData.activeEventId) || appData.events[0];
 }
 
+/* ── GUILD RENDER ──────────────────────────────────────────────────────── */
+function applyGuildVisibility() {
+  const guildSlide = document.getElementById('heroSlideGuild');
+  const guildDot   = document.querySelector('.hero-dot[data-index="1"]');
+  const visible    = guildData.visible !== false;
+  if (guildSlide) guildSlide.style.display = visible ? '' : 'none';
+  if (guildDot)   guildDot.style.display   = visible ? '' : 'none';
+  // If currently on the guild slide but it's now hidden, snap back to reward
+  if (!visible && currentSlide === 1) goToSlide(0);
+}
+
+function renderGuild() {
+  applyGuildVisibility();
+
+  const selectorEl  = document.getElementById('guildServerSelector');
+  const containerEl = document.getElementById('guildDataContainer');
+  if (!selectorEl || !containerEl) return;
+
+  const servers = (guildData && guildData.servers) ? guildData.servers : [];
+
+  // If no data yet, show empty state
+  if (!servers.length) {
+    selectorEl.innerHTML  = '';
+    containerEl.innerHTML = `<div style="text-align:center;padding:60px 20px;color:var(--sub-col);font-size:14px">
+      <div style="font-size:40px;margin-bottom:12px">⚔️</div>
+      <div>ยังไม่มีข้อมูลกิลด์</div>
+      <div style="font-size:12px;letter-spacing:2px;text-transform:uppercase;margin-top:6px;opacity:0.65">No guild data available</div>
+    </div>`;
+    return;
+  }
+
+  // Resolve active server
+  if (!guildActiveServerId || !servers.find(s => s.id === guildActiveServerId)) {
+    guildActiveServerId = (guildData.activeServerId && servers.find(s => s.id === guildData.activeServerId))
+      ? guildData.activeServerId
+      : servers[0].id;
+  }
+
+  // Resolve active server index for accent
+  const activeServerIndex = servers.findIndex(s => s.id === guildActiveServerId);
+  const srvAccent = GUILD_SERVER_ACCENTS[activeServerIndex >= 0 ? activeServerIndex % GUILD_SERVER_ACCENTS.length : 0];
+
+  // Server selector pills
+  selectorEl.innerHTML = '';
+  servers.forEach((srv, index) => {
+    const accent = GUILD_SERVER_ACCENTS[index % GUILD_SERVER_ACCENTS.length];
+    const p = document.createElement('button');
+    p.className = 'event-pill' + (srv.id === guildActiveServerId ? ' active' : '');
+    p.style.setProperty('--srv-accent', accent);
+    if (srv.id === guildActiveServerId) {
+      p.style.background = accent;
+      p.style.borderColor = accent;
+    } else {
+      p.style.background = 'transparent';
+      p.style.borderColor = accent;
+      p.style.color = accent;
+    }
+    p.textContent = srv.name;
+    p.onclick = () => { guildActiveServerId = srv.id; renderGuild(); };
+    selectorEl.appendChild(p);
+  });
+
+  const srv = servers.find(s => s.id === guildActiveServerId);
+  if (!srv) { containerEl.innerHTML = ''; return; }
+
+  // Render 4 category sections
+  containerEl.innerHTML = '';
+  GUILD_CAT_CONFIG.forEach(cat => {
+    const activeWeek = guildWeekFilter[cat.key] || 'all';
+    const nameQuery  = (guildNameFilter[cat.key] || '').toLowerCase().trim();
+
+    // Sort rows based on filter
+    let rows = [...(srv[cat.key] || [])];
+    if (activeWeek === 'all') {
+      rows.sort((a, b) => (parseFloat(b.total || '0') || 0) - (parseFloat(a.total || '0') || 0));
+    } else {
+      const wk = activeWeek; // e.g. 'w1'
+      rows.sort((a, b) => (parseFloat(b[wk] || '0') || 0) - (parseFloat(a[wk] || '0') || 0));
+    }
+
+    // Apply guild name filter
+    if (nameQuery) {
+      rows = rows.filter(r => (r.guildName || '').toLowerCase().includes(nameQuery));
+    }
+
+    const section = document.createElement('div');
+    section.className = 'guild-section';
+
+    // Header with week filter toggle
+    const headDiv = document.createElement('div');
+    headDiv.className = 'guild-section-head';
+    headDiv.style.background = `linear-gradient(135deg,${srvAccent}99,${srvAccent}55)`;
+
+    const titleEl = document.createElement('h3');
+    titleEl.style.margin = '0';
+    titleEl.textContent = cat.label;
+    headDiv.appendChild(titleEl);
+
+    // Week filter pills
+    const filterWrap = document.createElement('div');
+    filterWrap.className = 'guild-week-filter';
+
+    const allPills = [
+      { val: 'all', label: 'ทั้งหมด' },
+      { val: 'w1',  label: 'สป.1' },
+      { val: 'w2',  label: 'สป.2' },
+      { val: 'w3',  label: 'สป.3' },
+      { val: 'w4',  label: 'สป.4' },
+    ];
+    allPills.forEach(pill => {
+      const btn = document.createElement('button');
+      btn.className = 'gwf-pill' + (activeWeek === pill.val ? ' active' : '');
+      if (activeWeek === pill.val) {
+        btn.style.background = srvAccent;
+        btn.style.borderColor = srvAccent;
+        btn.style.color = '#fff';
+      }
+      btn.textContent = pill.label;
+      btn.onclick = () => { guildWeekFilter[cat.key] = pill.val; renderGuild(); };
+      filterWrap.appendChild(btn);
+    });
+    headDiv.appendChild(filterWrap);
+
+    // Guild name search bar (between header and table)
+    const searchWrap = document.createElement('div');
+    searchWrap.className = 'guild-search-wrap';
+    searchWrap.style.cssText = 'width:100%;padding:7px 10px;box-sizing:border-box;position:relative;border-left:1.5px solid var(--glass-border);border-right:1.5px solid var(--glass-border);';
+
+    const searchInput = document.createElement('input');
+    searchInput.type = 'text';
+    searchInput.className = 'mini-search-input';
+    searchInput.id = `guildSearch_${cat.key}`;
+    searchInput.placeholder = '🔍 ค้นหาชื่อกิลด์...';
+    searchInput.value = guildNameFilter[cat.key] || '';
+    searchInput.style.width = '100%';
+    searchInput.style.paddingRight = '34px';
+
+    const clearBtn = document.createElement('button');
+    clearBtn.className = 'guild-search-clear';
+    clearBtn.textContent = '×';
+    clearBtn.title = 'ล้างการค้นหา';
+    clearBtn.style.display = searchInput.value ? 'block' : 'none';
+    clearBtn.onclick = () => {
+      guildNameFilter[cat.key] = '';
+      renderGuild();
+    };
+
+    searchInput.oninput = (e) => {
+      guildNameFilter[cat.key] = e.target.value;
+      renderGuild();
+      // Restore focus to the same search input after re-render
+      const restored = document.getElementById(`guildSearch_${cat.key}`);
+      if (restored) {
+        const val = restored.value;
+        restored.focus();
+        restored.setSelectionRange(val.length, val.length);
+      }
+    };
+
+    searchWrap.appendChild(searchInput);
+    searchWrap.appendChild(clearBtn);
+
+    const tableOuter = document.createElement('div');
+    tableOuter.className = 'guild-table-outer';
+
+    // Build visible week columns based on filter
+    const visibleWeeks = activeWeek === 'all' ? [0,1,2,3] : [WEEK_KEYS.indexOf(activeWeek)];
+
+    let theadCols = `<th style="width:36px">#</th><th style="text-align:left">ชื่อกิลด์</th>`;
+    visibleWeeks.forEach(wi => { theadCols += `<th>${WEEK_LABELS[wi]}</th>`; });
+    theadCols += `<th>รวม</th><th>รวม Point</th>`;
+
+    const colspan = 4 + visibleWeeks.length;
+    let tbodyRows = '';
+    if (!rows.length) {
+      if (nameQuery) {
+        tbodyRows = `<tr class="guild-empty-row"><td colspan="${colspan}">😔 ไม่พบชื่อกิลด์</td></tr>`;
+      } else {
+        tbodyRows = `<tr class="guild-empty-row"><td colspan="${colspan}">ยังไม่มีข้อมูล</td></tr>`;
+      }
+    } else {
+      const MEDALS = ['🥇','🥈','🥉'];
+      rows.forEach((row, idx) => {
+        let weekCols = '';
+        visibleWeeks.forEach(wi => {
+          weekCols += `<td class="guild-td-score">${sanitise(row[WEEK_KEYS[wi]] ?? '')}</td>`;
+        });
+        const rankLabel = MEDALS[idx] ?? (idx + 1);
+        tbodyRows += `<tr>
+          <td class="guild-td-rank">${rankLabel}</td>
+          <td class="guild-td-name">${sanitise(row.guildName || '')}</td>
+          ${weekCols}
+          <td class="guild-td-total">${sanitise(row.total ?? '')}</td>
+          <td class="guild-td-score">${sanitise(row.totalPoints ?? '')}</td>
+        </tr>`;
+      });
+    }
+
+    tableOuter.innerHTML = `
+      <table class="guild-display">
+        <thead><tr>${theadCols}</tr></thead>
+        <tbody>${tbodyRows}</tbody>
+      </table>`;
+
+    section.appendChild(headDiv);
+    section.appendChild(searchWrap);
+    section.appendChild(tableOuter);
+    containerEl.appendChild(section);
+  });
+}
+
 /* ── RENDER ────────────────────────────────────────────────────────────── */
 function render() {
   const ev = getActiveEvent(); if (!ev) return;
+
+  // Hero titles (from appData with fallbacks)
+  const rTitleEl = document.getElementById('heroRewardTitleEl');
+  const rSubEl   = document.getElementById('heroRewardSubtitleEl');
+  const gTitleEl = document.getElementById('heroGuildTitleEl');
+  const gSubEl   = document.getElementById('heroGuildSubtitleEl');
+  if (rTitleEl) rTitleEl.textContent = ev.heroRewardTitle    || 'ประกาศรายชื่อผู้ได้รับรางวัล';
+  if (rSubEl)   rSubEl.textContent   = ev.heroRewardSubtitle || 'REWARD ANNOUNCEMENT';
+  if (gTitleEl) gTitleEl.textContent = ev.heroGuildTitle     || 'อัปเดตคะแนนการแข่งขันกิลด์';
+  if (gSubEl)   gSubEl.textContent   = ev.heroGuildSubtitle  || 'UPDATE GUILD CHALLENGE POINT';
 
   // Event selector — only show events that aren't hidden
   const sel = document.getElementById('eventSelector');
@@ -949,7 +1652,7 @@ function render() {
     const slice = list.slice(luckyPage*pp,(luckyPage+1)*pp);
     document.getElementById('luckyDrawBody').innerHTML = slice.map((w,i)=>`<tr>
       <td class="td-num" data-label="#">${luckyPage*pp+i+1}</td>
-      <td class="td-name" data-label="ชื่อ">${sanitise(w.name)}</td>
+      <td class="td-name" data-label="ชื่อ">${sanitise(displayName(ev, w.name))}</td>
       <td class="td-aid"  data-label="AID">${sanitise(w.aid)}</td>
       <td class="td-reward" data-label="รางวัล">${sanitise(w.reward)}</td>
     </tr>`).join('');
@@ -964,7 +1667,7 @@ function render() {
   const cslice = clist.slice(condPage*cp,(condPage+1)*cp);
   document.getElementById('conditionBody').innerHTML = cslice.map((w,i)=>`<tr>
     <td class="td-num" data-label="#">${condPage*cp+i+1}</td>
-    <td class="td-name" data-label="ชื่อ">${sanitise(w.name)}</td>
+    <td class="td-name" data-label="ชื่อ">${sanitise(displayName(ev, w.name))}</td>
     <td class="td-aid"  data-label="AID">${sanitise(w.aid)}</td>
     <td class="td-reward" data-label="รางวัล">${sanitise(w.reward)}</td>
   </tr>`).join('');
@@ -1003,42 +1706,162 @@ function jumpPage(type, val, total) {
 
 render(); // initial paint from localStorage/default while Supabase loads
 
+// ── HERO CAROUSEL ────────────────────────────────────────────────────────
+let pageMode = 'reward';
+let currentSlide = 0;
+const TOTAL_SLIDES = 2;
+
+function updateArrowStates(index) {
+  const left  = document.getElementById('heroArrowLeft');
+  const right = document.getElementById('heroArrowRight');
+  if (left)  { left.classList.toggle('dimmed',  index === 0); }
+  if (right) { right.classList.toggle('dimmed', index >= TOTAL_SLIDES - 1); }
+}
+
+function heroArrowNav(dir) {
+  const next = currentSlide + dir;
+  if (next < 0 || next >= TOTAL_SLIDES) return;
+  if (next === 1 && guildData.visible === false) return; // block nav to hidden guild slide
+  goToSlide(next);
+}
+
+function goToSlide(index) {
+  currentSlide = index;
+  const track = document.getElementById('heroSlidesTrack');
+  if (track) track.style.transform = `translateX(-${index * 100}%)`;
+
+  // Update dots
+  document.querySelectorAll('.hero-dot').forEach((dot, i) => {
+    dot.classList.toggle('active', i === index);
+  });
+
+  // Update arrow dimming
+  updateArrowStates(index);
+
+  // Set page mode
+  pageMode = index === 0 ? 'reward' : 'guild';
+  document.documentElement.setAttribute('data-mode', pageMode);
+
+  // Re-render guild content when switching to guild mode
+  if (pageMode === 'guild') renderGuild();
+}
+
+// ── HERO SWIPE HINT (once per session) ───────────────────────────────────
+(function initSwipeHint() {
+  if (sessionStorage.getItem('heroHintShown') === '1') return;
+  setTimeout(() => {
+    const hero = document.querySelector('.hero');
+    if (!hero) return;
+    const hint = document.createElement('div');
+    hint.className = 'hero-swipe-hint';
+    hint.textContent = '👆 เลื่อนดูเพิ่มเติม';
+    hero.appendChild(hint);
+    sessionStorage.setItem('heroHintShown', '1');
+    // Remove from DOM after animation ends
+    hint.addEventListener('animationend', () => hint.remove());
+  }, 1500);
+})();
+
+// Mouse drag support
+(function initCarouselDrag() {
+  const track = document.getElementById('heroSlidesTrack');
+  if (!track) return;
+  let startX = 0, isDragging = false, moved = 0;
+
+  track.addEventListener('mousedown', e => {
+    isDragging = true;
+    startX = e.clientX;
+    moved = 0;
+    track.classList.add('dragging');
+  });
+  window.addEventListener('mousemove', e => {
+    if (!isDragging) return;
+    moved = e.clientX - startX;
+    const base = currentSlide * 100;
+    track.style.transform = `translateX(calc(-${base}% + ${moved}px))`;
+  });
+  window.addEventListener('mouseup', () => {
+    if (!isDragging) return;
+    isDragging = false;
+    track.classList.remove('dragging');
+    if (moved < -50 && currentSlide < 1 && guildData.visible !== false) goToSlide(1);
+    else if (moved > 50 && currentSlide > 0) goToSlide(0);
+    else goToSlide(currentSlide); // snap back
+  });
+
+  // Touch support
+  track.addEventListener('touchstart', e => {
+    startX = e.touches[0].clientX;
+    moved = 0;
+  }, { passive: true });
+  track.addEventListener('touchmove', e => {
+    moved = e.touches[0].clientX - startX;
+  }, { passive: true });
+  track.addEventListener('touchend', () => {
+    if (moved < -50 && currentSlide < 1 && guildData.visible !== false) goToSlide(1);
+    else if (moved > 50 && currentSlide > 0) goToSlide(0);
+    else goToSlide(currentSlide);
+  });
+})();
+
+// Initialise to reward mode (slide 0)
+document.documentElement.setAttribute('data-mode', 'reward');
+
 // ── SUPABASE REAL-TIME INIT ───────────────────────────────────────────────
 async function initRealtime() {
-  // 1. Load latest data from Supabase
+  // 1. Load latest data from Supabase — both rows in parallel
   try {
-    const { data: row, error } = await sb
-      .from('reward_data').select('data').eq('id', 1).single();
-    if (!error && row && row.data && row.data.events) {
-      appData = row.data;
+    const [rowReward, rowGuild] = await Promise.all([
+      sb.from('reward_data').select('data').eq('id', 1).single(),
+      sb.from('reward_data').select('data').eq('id', 2).single()
+    ]);
+    if (!rowReward.error && rowReward.data && rowReward.data.data && rowReward.data.data.events) {
+      appData = rowReward.data.data;
       luckyPage = 0; condPage = 0;
       render();
-      // Keep localStorage in sync for fallback
       try { localStorage.setItem(STORAGE_KEY, JSON.stringify(appData)); } catch(e) {}
     }
+    if (!rowGuild.error && rowGuild.data && rowGuild.data.data && rowGuild.data.data.servers) {
+      guildData = rowGuild.data.data;
+      renderGuild(); // also calls applyGuildVisibility()
+      try { localStorage.setItem(GUILD_STORAGE_KEY, JSON.stringify(guildData)); } catch(e) {}
+    }
   } catch(e) { /* silently fall back to localStorage data already rendered */ }
+
+  // Default to reward mode (slide 0) after data loads
+  goToSlide(0);
 
   // 2. Subscribe to real-time changes — instant updates when admin saves
   sb.channel('reward_realtime')
     .on('postgres_changes', {
       event: 'UPDATE', schema: 'public', table: 'reward_data'
     }, (payload) => {
-      if (payload.new && payload.new.data && payload.new.data.events) {
+      if (payload.new && payload.new.id === 1 && payload.new.data && payload.new.data.events) {
         appData = payload.new.data;
         luckyPage = 0; condPage = 0;
         render();
       }
+      if (payload.new && payload.new.id === 2 && payload.new.data && payload.new.data.servers) {
+        guildData = payload.new.data;
+        renderGuild();
+      }
     })
     .subscribe();
 
-  // 3. Polling fallback every 30s (catches any missed real-time events)
+  // 3. Polling fallback every 30s — fetches both rows
   setInterval(async () => {
     try {
-      const { data: row } = await sb
-        .from('reward_data').select('data').eq('id', 1).single();
-      if (row && row.data && row.data.events) {
-        appData = row.data;
+      const [rowReward, rowGuild] = await Promise.all([
+        sb.from('reward_data').select('data').eq('id', 1).single(),
+        sb.from('reward_data').select('data').eq('id', 2).single()
+      ]);
+      if (rowReward.data && rowReward.data.data && rowReward.data.data.events) {
+        appData = rowReward.data.data;
         render();
+      }
+      if (rowGuild.data && rowGuild.data.data && rowGuild.data.data.servers) {
+        guildData = rowGuild.data.data;
+        renderGuild();
       }
     } catch(e) {}
   }, 30000);
