@@ -136,6 +136,11 @@
 /* ── RESET & BASE ──────────────────────────────────────────────────────── */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
+
+/* PREVIEW: unified keyboard focus ring */
+:focus-visible{outline:2.5px solid var(--gold);outline-offset:2px;border-radius:5px}
+:focus:not(:focus-visible){outline:none}
+
 body{
   font-family:'Sarabun',sans-serif;
   background:var(--body-bg);
@@ -430,6 +435,7 @@ table.rewards tbody td:last-child{border-right:none}
 /* ── PAGINATION ──────────────────────────────────────────────────────────── */
 .pagination{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:14px}
 .pag-btn{
+  position:relative;
   width:34px;height:34px;border-radius:50%;
   background:var(--pag-bg);
   border:1.5px solid var(--pag-border);
@@ -437,6 +443,8 @@ table.rewards tbody td:last-child{border-right:none}
   display:flex;align-items:center;justify-content:center;
   transition:all 0.2s;
 }
+/* PREVIEW: extend tap area to ~44px, button look unchanged */
+.pag-btn::after{content:"";position:absolute;inset:-5px;border-radius:50%}
 .pag-btn:hover:not(:disabled){background:rgba(64,130,109,0.70);border-color:var(--gold)}
 .pag-btn:disabled{opacity:0.30;cursor:default}
 .pag-info{font-family:'Sarabun',sans-serif;font-size:13px;color:var(--pag-info-col);letter-spacing:0.5px;display:flex;align-items:center;gap:6px}
@@ -720,6 +728,7 @@ table.rewards tbody tr.aid-match{
   z-index: 2;
 }
 .hero-dot {
+  position: relative;
   width: 8px; height: 8px;
   border-radius: 50%;
   background: rgba(255,255,255,0.35);
@@ -727,6 +736,8 @@ table.rewards tbody tr.aid-match{
   cursor: pointer;
   transition: background 0.3s, transform 0.2s;
 }
+/* PREVIEW: enlarge invisible tap area to ~24px, dot look unchanged */
+.hero-dot::after{content:"";position:absolute;inset:-8px;border-radius:50%}
 .hero-dot.active {
   background: #fff;
   transform: scale(1.25);
@@ -957,6 +968,28 @@ table.guild-display tbody td:last-child{border-right:none}
   .td-name,.td-aid,.td-reward{text-align:right}
   .theme-toggle{top:10px;right:12px}
 }
+
+/* PREVIEW: search "not found" inline note */
+.search-note{
+  display:none;margin-top:8px;
+  font-family:'Sarabun',sans-serif;font-size:13px;line-height:1.5;
+  color:var(--heading-col);
+  background:rgba(180,83,9,0.12);
+  border:1.5px solid rgba(180,83,9,0.35);
+  border-radius:9px;padding:9px 14px;
+}
+.search-note.show{display:block}
+.search-note .en{display:block;font-size:11px;opacity:0.7;margin-top:1px}
+
+/* PREVIEW: respect prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{
+    animation-duration:0.001ms !important;
+    animation-iteration-count:1 !important;
+    transition-duration:0.001ms !important;
+    scroll-behavior:auto !important;
+  }
+}
 </style>
 </head>
 <body>
@@ -1071,6 +1104,7 @@ table.guild-display tbody td:last-child{border-right:none}
         onkeydown="if(event.key==='Enter'){event.preventDefault();searchSection('lucky');}"/>
       <button type="button" class="mini-search-btn" onclick="searchSection('lucky')">ค้นหา</button>
     </div>
+    <div class="search-note" id="luckySearchNote" role="status" aria-live="polite"></div>
     <div class="glass-card table-wrap">
       <table class="rewards">
         <thead><tr>
@@ -1098,6 +1132,7 @@ table.guild-display tbody td:last-child{border-right:none}
         onkeydown="if(event.key==='Enter'){event.preventDefault();searchSection('cond');}"/>
       <button type="button" class="mini-search-btn" onclick="searchSection('cond')">ค้นหา</button>
     </div>
+    <div class="search-note" id="condSearchNote" role="status" aria-live="polite"></div>
     <div class="glass-card table-wrap">
       <table class="rewards">
         <thead><tr>
@@ -1301,18 +1336,22 @@ function searchSection(type) {
     (w.name || '').toLowerCase().includes(query)
   );
 
+  const note = document.getElementById(type === 'lucky' ? 'luckySearchNote' : 'condSearchNote');
+
   if (idx === -1) {
-    // Flash red border and shake placeholder
+    // PREVIEW: keep the player's typed AID; show a persistent bilingual note
     input.classList.add('not-found');
-    const orig = input.placeholder;
-    input.placeholder = '😔 ไม่พบ AID นี้ ลองใหม่อีกครั้ง';
-    input.value = '';
-    setTimeout(() => {
-      input.classList.remove('not-found');
-      input.placeholder = orig;
-    }, 2200);
+    if (note) {
+      note.innerHTML = '😔 ไม่พบ “' + sanitise(input.value.trim()) + '” ในรายชื่อนี้ ลองตรวจสอบ AID อีกครั้ง'
+        + '<span class="en">No match in this list. Please double-check your AID.</span>';
+      note.classList.add('show');
+    }
+    setTimeout(() => { input.classList.remove('not-found'); }, 2200);
     return;
   }
+
+  // PREVIEW: found - clear any previous not-found note
+  if (note) { note.classList.remove('show'); note.innerHTML = ''; }
 
   // Navigate to the correct page
   const targetPage = Math.floor(idx / pp);
