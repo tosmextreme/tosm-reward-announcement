@@ -929,9 +929,12 @@ table.rewards tbody tr,
   color:var(--tbl-th-col);margin:0;
 }
 .guild-table-outer{
-  overflow:hidden;border-radius:0 0 12px 12px;
+  overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;
+  border-radius:0 0 12px 12px;
   border:1.5px solid var(--glass-border);border-top:none;
 }
+.guild-table-outer::-webkit-scrollbar{height:6px}
+.guild-table-outer::-webkit-scrollbar-thumb{background:rgba(192,109,212,0.45);border-radius:6px}
 table.guild-display{width:100%;border-collapse:collapse}
 table.guild-display thead tr{background:var(--tbl-head-bg)}
 table.guild-display thead th{
@@ -988,6 +991,17 @@ table.guild-display tbody td:last-child{border-right:none}
   }
   .td-name,.td-aid,.td-reward{text-align:right}
   .theme-toggle{top:10px;right:12px}
+
+  /* Guild board: scroll horizontally instead of squishing; tighter sizing */
+  .guild-section{margin-top:24px}
+  .guild-section-head{padding:10px 12px}
+  .guild-section-head h3{font-size:15px}
+  table.guild-display{width:auto;min-width:100%}
+  table.guild-display th,table.guild-display td{white-space:nowrap}
+  table.guild-display thead th{padding:8px 10px;font-size:11px}
+  table.guild-display tbody td{padding:8px 10px;font-size:13px}
+  .gwf-pill{padding:6px 11px;font-size:12px}
+  .guild-week-filter{width:100%;margin-left:0}
 }
 
 /* PREVIEW: search "not found" inline note */
@@ -1527,13 +1541,12 @@ function renderGuild() {
     const filterWrap = document.createElement('div');
     filterWrap.className = 'guild-week-filter';
 
-    const allPills = [
-      { val: 'all', label: 'ทั้งหมด' },
-      { val: 'w1',  label: 'สป.1' },
-      { val: 'w2',  label: 'สป.2' },
-      { val: 'w3',  label: 'สป.3' },
-      { val: 'w4',  label: 'สป.4' },
-    ];
+    // Admin can hide individual week columns site-wide; hidden weeks lose their pill too
+    const hiddenWeeks = guildData.hiddenWeeks || {};
+    const allPills = [{ val: 'all', label: 'ทั้งหมด' }];
+    ['w1','w2','w3','w4'].forEach((wk, i) => {
+      if (!hiddenWeeks[wk]) allPills.push({ val: wk, label: 'สัปดาห์ ' + (i + 1) });
+    });
     allPills.forEach(pill => {
       const btn = document.createElement('button');
       btn.type = 'button';
@@ -1592,8 +1605,11 @@ function renderGuild() {
     const tableOuter = document.createElement('div');
     tableOuter.className = 'guild-table-outer';
 
-    // Build visible week columns based on filter
-    const visibleWeeks = activeWeek === 'all' ? [0,1,2,3] : [WEEK_KEYS.indexOf(activeWeek)];
+    // Build visible week columns: respect the filter AND admin-hidden weeks
+    const allowedWeeks = [0,1,2,3].filter(wi => !hiddenWeeks[WEEK_KEYS[wi]]);
+    const visibleWeeks = (activeWeek === 'all' || hiddenWeeks[activeWeek])
+      ? allowedWeeks
+      : [WEEK_KEYS.indexOf(activeWeek)];
 
     // CP's "รวม Point" column can be hidden from players via the admin toggle
     const showPoints = !(cat.key === 'cp' && guildData.cpHidePoints === true);
