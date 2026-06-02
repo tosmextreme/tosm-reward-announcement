@@ -719,6 +719,27 @@ table.rewards tbody tr.aid-match{
   min-width: 100%;
   flex-shrink: 0;
 }
+
+.hero-stage { position: relative; }
+
+/* ── "NEW PAGE" NOTIFICATION DOT (red badge on the next-page arrow) ───────── */
+.nav-dot {
+  position: absolute;
+  top: -6px; right: -6px;
+  width: 19px; height: 19px;
+  border-radius: 50%;
+  background: #ff3b30;
+  border: 2.5px solid var(--hero-bg, #0c5a4e);
+  box-shadow: 0 0 0 0 rgba(255,59,48,0.55);
+  animation: navDotPulse 1.8s ease-out infinite;
+  pointer-events: none;
+}
+@keyframes navDotPulse {
+  0%   { box-shadow: 0 0 0 0 rgba(255,59,48,0.55); }
+  70%  { box-shadow: 0 0 0 10px rgba(255,59,48,0); }
+  100% { box-shadow: 0 0 0 0 rgba(255,59,48,0); }
+}
+@media (prefers-reduced-motion: reduce) { .nav-dot { animation: none; } }
 .hero-dots {
   display: flex;
   justify-content: center;
@@ -1000,11 +1021,8 @@ table.guild-display tbody td:last-child{border-right:none}
 <div class="wrap">
 
   <!-- HERO (2-slide carousel) -->
+  <div class="hero-stage">
   <header class="hero" style="position:relative;">
-    <!-- Arrow buttons -->
-    <button type="button" class="hero-arrow hero-arrow-left dimmed" id="heroArrowLeft" aria-label="สไลด์ก่อนหน้า" onclick="heroArrowNav(-1)">&#8249;</button>
-    <button type="button" class="hero-arrow hero-arrow-right" id="heroArrowRight" aria-label="สไลด์ถัดไป" onclick="heroArrowNav(1)">&#8250;</button>
-
     <div class="hero-carousel-viewport">
       <div class="hero-slides-track" id="heroSlidesTrack">
         <!-- Slide 1: Reward Mode -->
@@ -1031,6 +1049,11 @@ table.guild-display tbody td:last-child{border-right:none}
       <div class="hero-dot" data-index="1" onclick="goToSlide(1)"></div>
     </div>
   </header>
+
+    <!-- Arrow buttons -->
+    <button type="button" class="hero-arrow hero-arrow-left dimmed" id="heroArrowLeft" aria-label="สไลด์ก่อนหน้า" onclick="heroArrowNav(-1)">&#8249;</button>
+    <button type="button" class="hero-arrow hero-arrow-right" id="heroArrowRight" aria-label="สไลด์ถัดไป" onclick="heroArrowNav(1)">&#8250;<span class="nav-dot" id="navDot" style="display:none"></span></button>
+  </div><!-- /.hero-stage -->
 
   <!-- EVENT SELECTOR -->
   <div class="event-selector-wrap" id="eventSelector"></div>
@@ -1258,6 +1281,24 @@ const DEFAULT_GUILD_DATA = {
   servers: [{ id: _gInitId, name: 'Laima', uskaQuest: [], fieldBoss: [], cp: [], conquest: [] }],
   activeServerId: _gInitId
 };
+
+// "New page" notification dot. Shows a red badge on the next-page arrow while
+// the guild page exists and the player hasn't opened it yet. It resets on every
+// page load (refresh), and hides once they swap to the guild slide this visit.
+let guildSeen = false;
+
+function markGuildSeen() {
+  guildSeen = true;
+}
+
+function updateNavDot() {
+  const dot = document.getElementById('navDot');
+  if (!dot) return;
+  const guildVisible = !guildData || guildData.visible !== false;
+  const onReward = (typeof currentSlide === 'undefined' || currentSlide === 0);
+  const show = guildVisible && onReward && !guildSeen;
+  dot.style.display = show ? '' : 'none';
+}
 let guildData = { servers: [], activeServerId: null };
 
 const GUILD_CAT_CONFIG = [
@@ -1390,6 +1431,8 @@ function applyGuildVisibility() {
   if (guildDot)   guildDot.style.display   = visible ? '' : 'none';
   // If currently on the guild slide but it's now hidden, snap back to reward
   if (!visible && currentSlide === 1) goToSlide(0);
+  // Keep the notification dot in sync with guild visibility
+  updateNavDot();
 }
 
 function renderGuild() {
@@ -1786,7 +1829,10 @@ function goToSlide(index) {
   document.documentElement.setAttribute('data-mode', pageMode);
 
   // Re-render guild content when switching to guild mode
-  if (pageMode === 'guild') renderGuild();
+  if (pageMode === 'guild') { renderGuild(); markGuildSeen(); }
+
+  // Refresh the "new page" notification dot
+  updateNavDot();
 }
 
 // ── HERO SWIPE HINT (once per session) ───────────────────────────────────
