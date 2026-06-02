@@ -1595,11 +1595,14 @@ function renderGuild() {
     // Build visible week columns based on filter
     const visibleWeeks = activeWeek === 'all' ? [0,1,2,3] : [WEEK_KEYS.indexOf(activeWeek)];
 
+    // CP's "รวม Point" column can be hidden from players via the admin toggle
+    const showPoints = !(cat.key === 'cp' && guildData.cpHidePoints === true);
+
     let theadCols = `<th style="width:36px">#</th><th style="text-align:left">ชื่อกิลด์</th>`;
     visibleWeeks.forEach(wi => { theadCols += `<th>${WEEK_LABELS[wi]}</th>`; });
-    theadCols += `<th>รวม</th><th>รวม Point</th>`;
+    theadCols += `<th>รวม</th>` + (showPoints ? `<th>รวม Point</th>` : '');
 
-    const colspan = 4 + visibleWeeks.length;
+    const colspan = (showPoints ? 4 : 3) + visibleWeeks.length;
     let tbodyRows = '';
     if (!rows.length) {
       if (nameQuery) {
@@ -1620,7 +1623,7 @@ function renderGuild() {
           <td class="guild-td-name">${sanitise(row.guildName || '')}</td>
           ${weekCols}
           <td class="guild-td-total">${sanitise(row.total ?? '')}</td>
-          <td class="guild-td-score">${sanitise(row.totalPoints ?? '')}</td>
+          ${showPoints ? `<td class="guild-td-score">${sanitise(row.totalPoints ?? '')}</td>` : ''}
         </tr>`;
       });
     }
