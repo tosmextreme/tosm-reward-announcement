@@ -1947,7 +1947,11 @@ async function initRealtime() {
   // Default to reward mode (slide 0) after data loads
   goToSlide(0);
 
-  // 2. Subscribe to real-time changes — instant updates when admin saves
+  // 2. Subscribe to real-time changes — instant updates when admin saves.
+  //    This is the PRIMARY update mechanism: it pushes changes to the page
+  //    instantly and uses almost no data. While it is connected, the page
+  //    does NOT poll at all (see step 3).
+  let realtimeConnected = false;
   sb.channel('reward_realtime')
     .on('postgres_changes', {
       event: 'UPDATE', schema: 'public', table: 'reward_data'
@@ -1962,25 +1966,46 @@ async function initRealtime() {
         renderGuild();
       }
     })
-    .subscribe();
+    .subscribe((status) => {
+      // Track whether the live connection is healthy.
+      realtimeConnected = (status === 'SUBSCRIBED');
+    });
 
-  // 3. Polling fallback every 30s — fetches both rows
-  setInterval(async () => {
+  // Shared refetch helper (both rows in a single request to halve traffic).
+  async function refetchRewardData() {
     try {
-      const [rowReward, rowGuild] = await Promise.all([
-        sb.from('reward_data').select('data').eq('id', 1).single(),
-        sb.from('reward_data').select('data').eq('id', 2).single()
-      ]);
-      if (rowReward.data && rowReward.data.data && rowReward.data.data.events) {
-        appData = rowReward.data.data;
-        render();
-      }
-      if (rowGuild.data && rowGuild.data.data && rowGuild.data.data.servers) {
-        guildData = rowGuild.data.data;
-        renderGuild();
+      const { data: rows, error } = await sb
+        .from('reward_data').select('id,data').in('id', [1, 2]);
+      if (error || !rows) return;
+      for (const row of rows) {
+        if (row.id === 1 && row.data && row.data.events) {
+          appData = row.data; render();
+        }
+        if (row.id === 2 && row.data && row.data.servers) {
+          guildData = row.data; renderGuild();
+        }
       }
     } catch(e) {}
-  }, 30000);
+  }
+
+  // 3. Polling is now only a FALLBACK for when the realtime connection drops.
+  //    It checks every 60s, but only actually fetches if (a) realtime is NOT
+  //    connected and (b) the tab is currently visible. In normal operation
+  //    realtime stays connected, so this fires zero network requests — which
+  //    is what prevents the page from quietly burning through data egress.
+  setInterval(() => {
+    if (!realtimeConnected && document.visibilityState === 'visible') {
+      refetchRewardData();
+    }
+  }, 60000);
+
+  // When the user returns to a backgrounded tab, do one immediate catch-up
+  // fetch only if realtime was disconnected while they were away.
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible' && !realtimeConnected) {
+      refetchRewardData();
+    }
+  });
 }
 
 initRealtime();
