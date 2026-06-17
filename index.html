@@ -2078,25 +2078,35 @@ async function initRealtime() {
   }, { passive:false });
 
   // Click-and-drag (hold the mouse and move) to scroll.
+  // NOTE: we deliberately do NOT use setPointerCapture — capturing the pointer
+  // would retarget the follow-up "click" to this container and stop the pill
+  // buttons from being clickable. Window listeners keep the drag working even
+  // if the cursor leaves the row.
   let down = false, startX = 0, startScroll = 0, moved = false;
   wrap.addEventListener('pointerdown', (e) => {
     if (e.button !== 0) return;
     down = true; moved = false;
     startX = e.clientX; startScroll = wrap.scrollLeft;
-    wrap.setPointerCapture(e.pointerId);
   });
-  wrap.addEventListener('pointermove', (e) => {
+  window.addEventListener('pointermove', (e) => {
     if (!down) return;
     const dx = e.clientX - startX;
-    if (Math.abs(dx) > 4){ moved = true; wrap.classList.add('dragging'); }
-    wrap.scrollLeft = startScroll - dx;
+    if (Math.abs(dx) > 5){ moved = true; wrap.classList.add('dragging'); }
+    if (moved) wrap.scrollLeft = startScroll - dx;
   });
-  function endDrag(){ down = false; wrap.classList.remove('dragging'); }
-  wrap.addEventListener('pointerup', endDrag);
-  wrap.addEventListener('pointercancel', endDrag);
-  // Swallow the click that ends a drag so it doesn't switch events by accident.
+  function endDrag(){
+    if (!down) return;
+    down = false;
+    wrap.classList.remove('dragging');
+    // Clear the "was dragging" flag after the click event has passed.
+    setTimeout(() => { moved = false; }, 0);
+  }
+  window.addEventListener('pointerup', endDrag);
+  window.addEventListener('pointercancel', endDrag);
+  // Only swallow the click when the user actually dragged — a plain click on a
+  // pill falls straight through to the pill's own handler.
   wrap.addEventListener('click', (e) => {
-    if (moved){ e.preventDefault(); e.stopPropagation(); moved = false; }
+    if (moved){ e.preventDefault(); e.stopPropagation(); }
   }, true);
 
   wrap.addEventListener('scroll', updateArrows, { passive:true });
