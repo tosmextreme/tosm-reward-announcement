@@ -203,12 +203,46 @@ body{
 }
 
 /* ── EVENT SELECTOR ─────────────────────────────────────────────────────── */
-.event-selector-wrap{
-  margin-top:20px;text-align:center;
-  overflow-x:auto;white-space:nowrap;
-  padding:10px 20px;scrollbar-width:none;
+.event-selector-outer{
+  position:relative;margin-top:20px;
+  /* room on the sides so arrows sit just outside the pills */
+  padding:0 38px;
 }
+.event-selector-wrap{
+  text-align:center;
+  overflow-x:auto;white-space:nowrap;
+  padding:10px 4px;scrollbar-width:none;
+  cursor:grab;
+  scroll-behavior:smooth;
+}
+.event-selector-wrap.dragging{cursor:grabbing;scroll-behavior:auto}
+.event-selector-wrap.dragging .event-pill{pointer-events:none}
 .event-selector-wrap::-webkit-scrollbar{display:none}
+
+/* Left / right scroll arrows */
+.event-nav-arrow{
+  position:absolute;top:50%;transform:translateY(-50%);
+  z-index:5;
+  width:34px;height:34px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  border:1.5px solid var(--pill-border);
+  background:var(--pill-bg);
+  color:var(--pill-color);
+  font-family:'Trirong',serif;font-size:22px;line-height:1;
+  padding-bottom:3px;
+  cursor:pointer;backdrop-filter:blur(4px);
+  transition:opacity 0.2s, background 0.2s, color 0.2s, box-shadow 0.2s;
+  box-shadow:0 2px 8px var(--shadow-g);
+}
+.event-nav-arrow:hover{
+  background:var(--pill-hover-bg);
+  color:var(--gold-soft);
+  border-color:var(--gold);
+}
+.event-nav-arrow.left{left:0}
+.event-nav-arrow.right{right:0}
+/* Hidden when there's nothing to scroll to in that direction */
+.event-nav-arrow.is-hidden{opacity:0;pointer-events:none}
 .event-pill{
   display:inline-flex;align-items:center;
   padding:8px 22px;margin:0 5px;
@@ -1078,7 +1112,11 @@ table.guild-display tbody td:last-child{border-right:none}
   </div><!-- /.hero-stage -->
 
   <!-- EVENT SELECTOR -->
-  <div class="event-selector-wrap" id="eventSelector"></div>
+  <div class="event-selector-outer" id="eventSelectorOuter">
+    <button type="button" class="event-nav-arrow left" id="evtArrowLeft" aria-label="Scroll left">‹</button>
+    <div class="event-selector-wrap" id="eventSelector"></div>
+    <button type="button" class="event-nav-arrow right" id="evtArrowRight" aria-label="Scroll right">›</button>
+  </div>
 
   <!-- REWARD CONTENT WRAP -->
   <div class="reward-content-wrap">
@@ -1695,6 +1733,8 @@ function render() {
     p.onclick = () => { appData.activeEventId = e.id; luckyPage = 0; condPage = 0; render(); };
     sel.appendChild(p);
   });
+  // Pills were rebuilt — refresh the left/right arrow visibility.
+  if (window.updateEventArrows) requestAnimationFrame(window.updateEventArrows);
 
   // Delivery date
   document.getElementById('deliveryDateEl').textContent = ev.deliveryDate || '--/--/--';
@@ -2007,6 +2047,62 @@ async function initRealtime() {
     }
   });
 }
+
+/* ── EVENT PILL ROW: drag-to-scroll, wheel-to-scroll, arrow buttons ──────── */
+(function setupEventScroller(){
+  const wrap     = document.getElementById('eventSelector');
+  const arrowL   = document.getElementById('evtArrowLeft');
+  const arrowR   = document.getElementById('evtArrowRight');
+  if (!wrap || !arrowL || !arrowR) return;
+
+  // Show/hide arrows depending on how far we've scrolled.
+  function updateArrows(){
+    const max = wrap.scrollWidth - wrap.clientWidth;
+    const overflowing = max > 4;                 // is there anything to scroll?
+    arrowL.classList.toggle('is-hidden', !overflowing || wrap.scrollLeft <= 2);
+    arrowR.classList.toggle('is-hidden', !overflowing || wrap.scrollLeft >= max - 2);
+  }
+  window.updateEventArrows = updateArrows;
+
+  // Arrow clicks scroll by ~80% of the visible width.
+  function step(dir){ wrap.scrollBy({ left: dir * wrap.clientWidth * 0.8, behavior:'smooth' }); }
+  arrowL.addEventListener('click', () => step(-1));
+  arrowR.addEventListener('click', () => step(1));
+
+  // Plain mouse wheel scrolls the row sideways (no Shift needed).
+  wrap.addEventListener('wheel', (e) => {
+    if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return; // already horizontal
+    if (wrap.scrollWidth <= wrap.clientWidth) return;     // nothing to scroll
+    e.preventDefault();
+    wrap.scrollLeft += e.deltaY;
+  }, { passive:false });
+
+  // Click-and-drag (hold the mouse and move) to scroll.
+  let down = false, startX = 0, startScroll = 0, moved = false;
+  wrap.addEventListener('pointerdown', (e) => {
+    if (e.button !== 0) return;
+    down = true; moved = false;
+    startX = e.clientX; startScroll = wrap.scrollLeft;
+    wrap.setPointerCapture(e.pointerId);
+  });
+  wrap.addEventListener('pointermove', (e) => {
+    if (!down) return;
+    const dx = e.clientX - startX;
+    if (Math.abs(dx) > 4){ moved = true; wrap.classList.add('dragging'); }
+    wrap.scrollLeft = startScroll - dx;
+  });
+  function endDrag(){ down = false; wrap.classList.remove('dragging'); }
+  wrap.addEventListener('pointerup', endDrag);
+  wrap.addEventListener('pointercancel', endDrag);
+  // Swallow the click that ends a drag so it doesn't switch events by accident.
+  wrap.addEventListener('click', (e) => {
+    if (moved){ e.preventDefault(); e.stopPropagation(); moved = false; }
+  }, true);
+
+  wrap.addEventListener('scroll', updateArrows, { passive:true });
+  window.addEventListener('resize', updateArrows);
+  updateArrows();
+})();
 
 initRealtime();
 </script>
