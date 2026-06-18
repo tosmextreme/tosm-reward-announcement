@@ -1192,9 +1192,9 @@ table.guild-display tbody td:last-child{border-right:none}
       <table class="rewards">
         <thead><tr>
           <th style="width:44px;">#</th>
-          <th>ชื่อ Facebook<span class="en">Facebook Name</span></th>
-          <th>AID<span class="en">Account ID</span></th>
-          <th>รางวัล<span class="en">Reward</span></th>
+          <th id="thNameLucky">ชื่อ Facebook<span class="en">Facebook Name</span></th>
+          <th id="thAidLucky">AID<span class="en">Account ID</span></th>
+          <th id="thRewardLucky">รางวัล<span class="en">Reward</span></th>
         </tr></thead>
         <tbody id="luckyDrawBody"></tbody>
       </table>
@@ -1220,9 +1220,9 @@ table.guild-display tbody td:last-child{border-right:none}
       <table class="rewards">
         <thead><tr>
           <th style="width:44px;">#</th>
-          <th>ชื่อ Facebook<span class="en">Facebook Name</span></th>
-          <th>AID<span class="en">Account ID</span></th>
-          <th>รางวัล<span class="en">Reward</span></th>
+          <th id="thNameCond">ชื่อ Facebook<span class="en">Facebook Name</span></th>
+          <th id="thAidCond">AID<span class="en">Account ID</span></th>
+          <th id="thRewardCond">รางวัล<span class="en">Reward</span></th>
         </tr></thead>
         <tbody id="conditionBody"></tbody>
       </table>
@@ -1298,6 +1298,9 @@ const DEFAULT_DATA = {
     heroRewardSubtitle:'REWARD ANNOUNCEMENT',
     heroGuildTitle:'อัปเดตคะแนนการแข่งขันกิลด์',
     heroGuildSubtitle:'UPDATE GUILD CHALLENGE POINT',
+    colNameTh:'ชื่อ Facebook', colNameEn:'Facebook Name',
+    colAidTh:'AID', colAidEn:'Account ID',
+    colRewardTh:'รางวัล', colRewardEn:'Reward',
     luckyDraw:[
       {name:'xx*****xx',aid:'',reward:'รางวัล ชุด A'},
       {name:'xx*****xx',aid:'',reward:'รางวัล ชุด A'},
@@ -1793,6 +1796,25 @@ function render() {
   document.getElementById('condHeading').textContent    = ev.conditionLabel   || 'รายชื่อผู้ได้รับรางวัล';
   document.getElementById('condHeadingEn').textContent  = ev.conditionLabelEn || 'Reward Recipients';
 
+  // Table column headers (editable per event — e.g. change "Facebook Name"
+  // to "Discord Name" / "In-Game Name" for events held outside Facebook)
+  const colNameTh   = ev.colNameTh   || 'ชื่อ Facebook';
+  const colNameEn   = ev.colNameEn   || 'Facebook Name';
+  const colAidTh    = ev.colAidTh    || 'AID';
+  const colAidEn    = ev.colAidEn    || 'Account ID';
+  const colRewardTh = ev.colRewardTh || 'รางวัล';
+  const colRewardEn = ev.colRewardEn || 'Reward';
+  const setTh = (id, th, en) => {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = sanitise(th) + '<span class="en">' + sanitise(en) + '</span>';
+  };
+  setTh('thNameLucky',   colNameTh,   colNameEn);
+  setTh('thAidLucky',    colAidTh,    colAidEn);
+  setTh('thRewardLucky', colRewardTh, colRewardEn);
+  setTh('thNameCond',    colNameTh,   colNameEn);
+  setTh('thAidCond',     colAidTh,    colAidEn);
+  setTh('thRewardCond',  colRewardTh, colRewardEn);
+
   // Lucky draw
   const lsec = document.getElementById('luckyDrawSection');
   if (!ev.showLuckyDraw) { lsec.style.display='none'; }
@@ -1805,9 +1827,9 @@ function render() {
     const slice = list.slice(luckyPage*pp,(luckyPage+1)*pp);
     document.getElementById('luckyDrawBody').innerHTML = slice.map((w,i)=>`<tr>
       <td class="td-num" data-label="#">${luckyPage*pp+i+1}</td>
-      <td class="td-name" data-label="ชื่อ">${sanitise(displayName(ev, w.name))}</td>
-      <td class="td-aid"  data-label="AID">${sanitise(w.aid)}</td>
-      <td class="td-reward" data-label="รางวัล">${sanitise(w.reward)}</td>
+      <td class="td-name" data-label="${sanitise(colNameTh)}">${sanitise(displayName(ev, w.name))}</td>
+      <td class="td-aid"  data-label="${sanitise(colAidTh)}">${sanitise(w.aid)}</td>
+      <td class="td-reward" data-label="${sanitise(colRewardTh)}">${sanitise(w.reward)}</td>
     </tr>`).join('');
     renderPag('luckyPagination',luckyPage,totalPages,'lucky');
   }
@@ -1820,9 +1842,9 @@ function render() {
   const cslice = clist.slice(condPage*cp,(condPage+1)*cp);
   document.getElementById('conditionBody').innerHTML = cslice.map((w,i)=>`<tr>
     <td class="td-num" data-label="#">${condPage*cp+i+1}</td>
-    <td class="td-name" data-label="ชื่อ">${sanitise(displayName(ev, w.name))}</td>
-    <td class="td-aid"  data-label="AID">${sanitise(w.aid)}</td>
-    <td class="td-reward" data-label="รางวัล">${sanitise(w.reward)}</td>
+    <td class="td-name" data-label="${sanitise(colNameTh)}">${sanitise(displayName(ev, w.name))}</td>
+    <td class="td-aid"  data-label="${sanitise(colAidTh)}">${sanitise(w.aid)}</td>
+    <td class="td-reward" data-label="${sanitise(colRewardTh)}">${sanitise(w.reward)}</td>
   </tr>`).join('');
   renderPag('condPagination',condPage,ctotalPages,'cond');
 
