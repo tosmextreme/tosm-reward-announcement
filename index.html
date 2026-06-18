@@ -1301,6 +1301,7 @@ const DEFAULT_DATA = {
     colNameTh:'ชื่อ Facebook', colNameEn:'Facebook Name',
     colAidTh:'AID', colAidEn:'Account ID',
     colRewardTh:'รางวัล', colRewardEn:'Reward',
+    searchPlaceholder:'🔍  ค้นหา AID ของคุณ...',
     luckyDraw:[
       {name:'xx*****xx',aid:'',reward:'รางวัล ชุด A'},
       {name:'xx*****xx',aid:'',reward:'รางวัล ชุด A'},
@@ -1814,6 +1815,11 @@ function render() {
   setTh('thNameCond',    colNameTh,   colNameEn);
   setTh('thAidCond',     colAidTh,    colAidEn);
   setTh('thRewardCond',  colRewardTh, colRewardEn);
+
+  // Search-box placeholder (editable per event — e.g. "ค้นหาชื่อ Family ของคุณ...")
+  const searchPh = ev.searchPlaceholder || '🔍  ค้นหา AID ของคุณ...';
+  const lsi = document.getElementById('luckySearchInput'); if (lsi) lsi.placeholder = searchPh;
+  const csi = document.getElementById('condSearchInput');  if (csi) csi.placeholder = searchPh;
 
   // Lucky draw
   const lsec = document.getElementById('luckyDrawSection');
