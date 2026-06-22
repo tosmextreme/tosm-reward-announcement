@@ -1993,24 +1993,68 @@ document.documentElement.setAttribute('data-mode', 'reward');
 
 // ── SUPABASE REAL-TIME INIT ───────────────────────────────────────────────
 async function initRealtime() {
-  // 1. Load latest data from Supabase — both rows in parallel
+  // 1. Load latest data — but only DOWNLOAD the heavy payload when it has
+  //    actually changed since we last cached it. We first ask for just the tiny
+  //    id + updated_at timestamps (a few bytes), compare them with what we
+  //    cached last time, and only pull the full `data` for rows that changed.
+  //    A repeat visitor whose data hasn't changed transfers almost nothing —
+  //    that is the main egress saving. First-time visitors, or any error,
+  //    fall back to a normal full download, so nothing can break.
+  const STORAGE_TS_KEY = 'tosm_reward_ts_v1';
   try {
-    const [rowReward, rowGuild] = await Promise.all([
-      sb.from('reward_data').select('data').eq('id', 1).single(),
-      sb.from('reward_data').select('data').eq('id', 2).single()
-    ]);
-    if (!rowReward.error && rowReward.data && rowReward.data.data && rowReward.data.data.events) {
-      appData = rowReward.data.data;
-      luckyPage = 0; condPage = 0;
-      render();
-      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(appData)); } catch(e) {}
+    let cachedTs = {};
+    try { cachedTs = JSON.parse(localStorage.getItem(STORAGE_TS_KEY) || '{}'); } catch(e) { cachedTs = {}; }
+    const cachedReward = localStorage.getItem(STORAGE_KEY);
+    const cachedGuild  = localStorage.getItem(GUILD_STORAGE_KEY);
+
+    // Tiny request: only the timestamps for both rows (one combined call).
+    let stamps = null;
+    try {
+      const r = await sb.from('reward_data').select('id,updated_at').in('id', [1, 2]);
+      if (!r.error) stamps = r.data;
+    } catch(e) { stamps = null; }
+    const tsOf = (id) => { const s = stamps && stamps.find(x => x.id === id); return s ? String(s.updated_at || '') : null; };
+
+    // A row needs a full download if we have no cached copy, we couldn't read
+    // its timestamp, or the timestamp differs from the one we cached.
+    const rewardChanged = !cachedReward || tsOf(1) === null || tsOf(1) !== String(cachedTs[1] || '');
+    const guildChanged  = !cachedGuild  || tsOf(2) === null || tsOf(2) !== String(cachedTs[2] || '');
+
+    // Unchanged rows: apply the cached copy with NO download.
+    if (!rewardChanged && cachedReward) {
+      try { appData = JSON.parse(cachedReward); luckyPage = 0; condPage = 0; render(); } catch(e) {}
     }
-    if (!rowGuild.error && rowGuild.data && rowGuild.data.data && rowGuild.data.data.servers) {
-      guildData = rowGuild.data.data;
-      renderGuild(); // also calls applyGuildVisibility()
-      try { localStorage.setItem(GUILD_STORAGE_KEY, JSON.stringify(guildData)); } catch(e) {}
+    if (!guildChanged && cachedGuild) {
+      try { guildData = JSON.parse(cachedGuild); renderGuild(); } catch(e) {}
     }
-  } catch(e) { /* silently fall back to localStorage data already rendered */ }
+
+    // Changed / missing rows: download the full data in ONE combined request.
+    const needIds = [];
+    if (rewardChanged) needIds.push(1);
+    if (guildChanged)  needIds.push(2);
+    if (needIds.length) {
+      const { data: rows, error } = await sb
+        .from('reward_data').select('id,data,updated_at').in('id', needIds);
+      if (!error && rows) {
+        for (const row of rows) {
+          if (row.id === 1 && row.data && row.data.events) {
+            appData = row.data; luckyPage = 0; condPage = 0; render();
+            try { localStorage.setItem(STORAGE_KEY, JSON.stringify(appData)); } catch(e) {}
+            cachedTs[1] = row.updated_at;
+          }
+          if (row.id === 2 && row.data && row.data.servers) {
+            guildData = row.data; renderGuild(); // also calls applyGuildVisibility()
+            try { localStorage.setItem(GUILD_STORAGE_KEY, JSON.stringify(guildData)); } catch(e) {}
+            cachedTs[2] = row.updated_at;
+          }
+        }
+      }
+    }
+
+    // Remember the latest timestamps (including unchanged rows) for next time.
+    if (stamps) { for (const s of stamps) { cachedTs[s.id] = s.updated_at; } }
+    try { localStorage.setItem(STORAGE_TS_KEY, JSON.stringify(cachedTs)); } catch(e) {}
+  } catch(e) { /* silently fall back to baked / localStorage data already rendered */ }
 
   // Default to reward mode (slide 0) after data loads
   goToSlide(0);
@@ -2028,10 +2072,15 @@ async function initRealtime() {
         appData = payload.new.data;
         luckyPage = 0; condPage = 0;
         render();
+        // Keep the local cache + timestamp in sync so a later reload doesn't re-download.
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(appData)); } catch(e) {}
+        try { const t = JSON.parse(localStorage.getItem(STORAGE_TS_KEY) || '{}'); t[1] = payload.new.updated_at; localStorage.setItem(STORAGE_TS_KEY, JSON.stringify(t)); } catch(e) {}
       }
       if (payload.new && payload.new.id === 2 && payload.new.data && payload.new.data.servers) {
         guildData = payload.new.data;
         renderGuild();
+        try { localStorage.setItem(GUILD_STORAGE_KEY, JSON.stringify(guildData)); } catch(e) {}
+        try { const t = JSON.parse(localStorage.getItem(STORAGE_TS_KEY) || '{}'); t[2] = payload.new.updated_at; localStorage.setItem(STORAGE_TS_KEY, JSON.stringify(t)); } catch(e) {}
       }
     })
     .subscribe((status) => {
