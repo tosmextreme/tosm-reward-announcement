@@ -2001,37 +2001,47 @@ async function initRealtime() {
   //    that is the main egress saving. First-time visitors, or any error,
   //    fall back to a normal full download, so nothing can break.
   const STORAGE_TS_KEY = 'tosm_reward_ts_v1';
+  // Is the REWARD data baked into this published page? (Admin Export sets
+  // BAKED_DATA.) When baked, the reward/winner results are already in the page
+  // and served free by the host, so we never download row 1 from Supabase.
+  // GUILD scores (row 2) are ALWAYS fetched live so every visitor — new or
+  // returning — sees current scores. When NOT baked, BOTH rows are fetched
+  // live exactly as before, so an un-baked publish behaves identically to the
+  // current page and cannot change what users see.
+  const rewardIsBaked = (typeof BAKED_DATA !== 'undefined' && BAKED_DATA !== null);
   try {
     let cachedTs = {};
     try { cachedTs = JSON.parse(localStorage.getItem(STORAGE_TS_KEY) || '{}'); } catch(e) { cachedTs = {}; }
     const cachedReward = localStorage.getItem(STORAGE_KEY);
     const cachedGuild  = localStorage.getItem(GUILD_STORAGE_KEY);
 
-    // Tiny request: only the timestamps for both rows (one combined call).
+    // Tiny request: timestamps only. Skip row 1 entirely when reward is baked.
+    const checkIds = rewardIsBaked ? [2] : [1, 2];
     let stamps = null;
     try {
-      const r = await sb.from('reward_data').select('id,updated_at').in('id', [1, 2]);
+      const r = await sb.from('reward_data').select('id,updated_at').in('id', checkIds);
       if (!r.error) stamps = r.data;
     } catch(e) { stamps = null; }
     const tsOf = (id) => { const s = stamps && stamps.find(x => x.id === id); return s ? String(s.updated_at || '') : null; };
 
-    // A row needs a full download if we have no cached copy, we couldn't read
-    // its timestamp, or the timestamp differs from the one we cached.
-    const rewardChanged = !cachedReward || tsOf(1) === null || tsOf(1) !== String(cachedTs[1] || '');
-    const guildChanged  = !cachedGuild  || tsOf(2) === null || tsOf(2) !== String(cachedTs[2] || '');
+    const needIds = [];
 
-    // Unchanged rows: apply the cached copy with NO download.
-    if (!rewardChanged && cachedReward) {
-      try { appData = JSON.parse(cachedReward); luckyPage = 0; condPage = 0; render(); } catch(e) {}
+    // REWARD (row 1): only when NOT baked. When baked, appData already holds the
+    // baked results (set at page init) — leave it untouched, download nothing.
+    if (!rewardIsBaked) {
+      const rewardChanged = !cachedReward || tsOf(1) === null || tsOf(1) !== String(cachedTs[1] || '');
+      if (!rewardChanged && cachedReward) {
+        try { appData = JSON.parse(cachedReward); luckyPage = 0; condPage = 0; render(); } catch(e) {}
+      } else { needIds.push(1); }
     }
+
+    // GUILD (row 2): ALWAYS live, with the "only download if changed" check.
+    const guildChanged = !cachedGuild || tsOf(2) === null || tsOf(2) !== String(cachedTs[2] || '');
     if (!guildChanged && cachedGuild) {
       try { guildData = JSON.parse(cachedGuild); renderGuild(); } catch(e) {}
-    }
+    } else { needIds.push(2); }
 
-    // Changed / missing rows: download the full data in ONE combined request.
-    const needIds = [];
-    if (rewardChanged) needIds.push(1);
-    if (guildChanged)  needIds.push(2);
+    // Download the full data only for the rows we actually need (one request).
     if (needIds.length) {
       const { data: rows, error } = await sb
         .from('reward_data').select('id,data,updated_at').in('id', needIds);
