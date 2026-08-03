@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>คู่มือ Kudsan Tools — ติดตั้ง & ใช้งาน</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{ font-family:'Noto Sans Thai','Sarabun','Loma',system-ui,sans-serif; color:#1f2937; background:#eef1f6; line-height:1.7; }
+  .page{ max-width:840px; margin:0 auto; background:#fff; padding:56px 60px 64px; }
+  h1{ font-size:32px; font-weight:800; color:#0f172a; line-height:1.25; }
+  .sub{ font-size:16px; color:#64748b; margin-top:8px; }
+  .hero{ border-left:6px solid #f59e0b; padding:4px 0 4px 18px; margin-bottom:8px; }
+  h2{ font-size:22px; font-weight:800; color:#0f172a; margin:38px 0 6px; padding-top:16px; border-top:2px solid #eef1f6; }
+  h2 .num{ display:inline-block; background:#f59e0b; color:#fff; width:30px; height:30px; border-radius:8px; text-align:center; line-height:30px; font-size:16px; margin-right:10px; }
+  h3{ font-size:17px; font-weight:700; color:#111827; margin:20px 0 6px; }
+  p{ font-size:15.5px; margin:8px 0; }
+  ol,ul{ margin:8px 0 8px 4px; padding-left:22px; }
+  li{ font-size:15.5px; margin:7px 0; }
+  code{ background:#f1f5f9; border:1px solid #e2e8f0; border-radius:5px; padding:1px 7px; font-family:'Consolas',monospace; font-size:13.5px; color:#b91c1c; }
+  b{ color:#0f172a; }
+  .lead{ font-size:16px; color:#334155; margin:12px 0 4px; }
+  /* callouts */
+  .box{ border-radius:12px; padding:14px 18px; margin:16px 0; font-size:15px; }
+  .box b{ display:block; margin-bottom:3px; font-size:15px; }
+  .tip{ background:#ecfdf5; border:1px solid #a7f3d0; }
+  .tip b{ color:#047857; }
+  .warn{ background:#fffbeb; border:1px solid #fde68a; }
+  .warn b{ color:#b45309; }
+  .danger{ background:#fef2f2; border:1px solid #fecaca; }
+  .danger b{ color:#b91c1c; }
+  .info{ background:#eff6ff; border:1px solid #bfdbfe; }
+  .info b{ color:#1d4ed8; }
+  table{ border-collapse:collapse; width:100%; margin:14px 0; font-size:14.5px; }
+  th,td{ border:1px solid #e2e8f0; padding:9px 12px; text-align:left; vertical-align:top; }
+  th{ background:#f8fafc; font-weight:700; color:#0f172a; }
+  .foot{ margin-top:40px; padding-top:16px; border-top:2px solid #eef1f6; font-size:13px; color:#94a3b8; }
+  @page{ size:A4; margin:14mm; }
+  @media print{ body{ background:#fff; } .page{ padding:0; max-width:none; } h2{ page-break-after:avoid; } .box,table{ page-break-inside:avoid; } }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="hero">
+    <h1>⚡ Kudsan Tools — คู่มือติดตั้ง & ใช้งาน</h1>
+    <div class="sub">เครื่องมือคัดกรองกิจกรรมอัตโนมัติบน Google Sheets · TOSM Extreme</div>
+  </div>
+  <p class="lead">เอกสารนี้สำหรับ user ทุกคนที่จะติดตั้งและใช้งานเครื่องมือ ครอบคลุมตั้งแต่การติดตั้ง วิธีใช้งานแต่ละกิจกรรม
+  และ <b>วิธีใส่/เปลี่ยน API Key ของตัวเอง</b> เพื่อไม่ให้ไปใช้ quota ของคนอื่นโดยไม่ตั้งใจ</p>
+
+  <div class="info">
+    <b>ต้องเตรียมอะไรบ้าง (ฟรีทั้งหมด ไม่มีค่าใช้จ่าย)</b>
+    ① ไฟล์สคริปต์ 2 ไฟล์: <code>Sudota-Query.gs</code> และ <code>SudotaSidebar.html</code> &nbsp;·&nbsp;
+    ② Groq API Key ฟรี (console.groq.com/keys) &nbsp;·&nbsp;
+    ③ Gemini API Key ฟรี (aistudio.google.com/apikey) — ไม่ต้องใช้บัตรเครดิต
+  </div>
+
+  <h2><span class="num">1</span>การติดตั้ง (ทำครั้งเดียว)</h2>
+  <ol>
+    <li>เปิดชีต Query แล้วไปที่ <b>Extensions → Apps Script</b></li>
+    <li>กด <b>＋ → Script</b> ตั้งชื่อ <code>Sudota-Query</code> → เปิดไฟล์ <code>Sudota-Query.gs</code> คัดลอกทั้งหมดมาวาง</li>
+    <li>กด <b>＋ → HTML</b> ตั้งชื่อให้ตรงว่า <code>SudotaSidebar</code> → ลบข้อความตัวอย่างทิ้ง แล้ววางเนื้อหาจาก <code>SudotaSidebar.html</code></li>
+    <li>เปิดไฟล์ <code>New คัดรายชื่อ tab.gs</code> เดิม → แก้เฉพาะฟังก์ชัน <code>onOpen</code> ให้มีบรรทัด
+      <code>if (typeof addSudotaMenu === 'function') addSudotaMenu(ui);</code> (ให้เมนูขึ้นทั้งสองอัน)</li>
+    <li>กด <b>💾 บันทึก</b> → ปิด Apps Script → <b>รีเฟรชชีต 1 ครั้ง</b></li>
+    <li>จะเห็นเมนู <b>⚡ Kudsan Tools</b> โผล่บนแถบเมนูของชีต</li>
+  </ol>
+
+  <h2><span class="num">2</span>ตั้งค่า Config + ใส่ Key ของตัวเอง <span style="font-size:14px;color:#b45309;font-weight:700;">(สำคัญ)</span></h2>
+  <ol>
+    <li>เมนู <b>⚡ Kudsan Tools → Set up config tab (one time)</b> → ระบบสร้างแท็บ <b>⚙️ Sudota Config</b> ให้</li>
+    <li>วาง <b>Groq API Key ของคุณ</b> (ขึ้นต้น <code>gsk_…</code>) ที่เซลล์ <b>B4</b></li>
+    <li>วาง <b>Gemini API Key ของคุณ</b> (ขึ้นต้น <code>AIza…</code>) ที่เซลล์ <b>B8</b> — เพื่อให้ตรวจรูปเร็ว</li>
+  </ol>
+  <div class="tip">
+    <b>ทำไมต้องใช้ Key ของตัวเอง</b>
+    เครื่องมืออ่าน key จากเซลล์ Config <b>ทุกครั้งที่รัน</b> ดังนั้นถ้าคุณใส่ key ของตัวเอง โควตา AI ฟรีจะถูกนับเป็นของคุณเอง
+    ไม่ไปกิน quota ของคนอื่น (และคนอื่นก็ไม่มากิน quota ของคุณ)
+  </div>
+  <table>
+    <tr><th>เซลล์</th><th>ค่า</th><th>หมายเหตุ</th></tr>
+    <tr><td><b>B4</b></td><td>Groq API Key</td><td>ใช้อ่านเงื่อนไข + คัดกรองข้อความ (ขึ้นต้น gsk_)</td></tr>
+    <tr><td>B5</td><td>Groq Model</td><td>ค่าเริ่มต้นใช้ได้เลย ไม่ต้องแก้</td></tr>
+    <tr><td>B6</td><td>ปิดบังชื่อ (TRUE/FALSE)</td><td>TRUE = ปิดบังชื่อบนหน้าประกาศ</td></tr>
+    <tr><td>B7</td><td>Groq Vision Model</td><td>ค่าเริ่มต้นใช้ได้เลย</td></tr>
+    <tr><td><b>B8</b></td><td>Gemini API Key</td><td>ใช้ตรวจรูปแบบเร็ว (ขึ้นต้น AIza) — แนะนำอย่างยิ่ง</td></tr>
+  </table>
+
+  <h2><span class="num">3</span>วิธีใช้งาน (ทุกครั้งที่มีกิจกรรม)</h2>
+  <ol>
+    <li>ให้ส่วนขยาย <b>Sudota</b> ดึงคอมเมนต์ของกิจกรรมลงในแท็บดิบก่อน → คลิกไปที่แท็บนั้น</li>
+    <li>เมนู <b>⚡ Kudsan Tools → Open Kudsan panel</b> (แผงเปิดด้านขวา ตรวจว่าชื่อแท็บด้านบนถูกต้อง)</li>
+    <li><b>ขั้นที่ 1 — อ่านเงื่อนไข:</b> วางข้อความโพสต์กิจกรรม → กด <b>Read condition (AI)</b> → ตรวจ/แก้สิ่งที่ AI อ่านได้</li>
+    <li><b>ขั้นที่ 2 — คัดกรอง:</b> กด <b>Screen the raw tab</b> → ดูจำนวน และ <b>วงล้อ % ใช้ได้</b> ว่าน่าเชื่อถือไหม
+      <ul>
+        <li>ถ้ากิจกรรมต้องแนบรูป: เลือก <b>AI engine = Gemini</b> แล้วกด <b>Verify all images</b> (ระบบบอกเวลาโดยประมาณ ~9 วิ/รูป)</li>
+        <li>ระหว่างรันสามารถ <b>Stop</b>/รันต่อ และ <b>Retry</b> รายการที่ติด rate-limit ได้ ความคืบหน้าไม่หาย</li>
+      </ul>
+    </li>
+    <li><b>ขั้นที่ 3 — สร้างสเปรดชีต:</b> พิมพ์ชื่อกิจกรรม → เลือกสร้างแบบ ทั้งหมด / เฉพาะสุ่ม / เฉพาะเข้าร่วม (ไม่รวมคนที่ถูกตัดสิทธิ์)</li>
+    <li><b>ขั้นที่ 4 — ประกาศขึ้นหน้าเว็บ:</b> ใส่ event id ให้ตรงกับใน reward-admin → <b>Publish to LIVE (hidden)</b>
+      (ขึ้นแบบซ่อนก่อน) → เมื่อถึงเวลาจริงค่อยกด <b>Reveal</b></li>
+  </ol>
+  <div class="warn">
+    <b>ก่อน Export หรือ Publish ทุกครั้ง</b> ให้ดู <b>วงล้อ % ใช้ได้</b> ก่อน — ถ้ามี "ไม่แน่ใจ" เยอะ (สีเหลือง)
+    ให้กดดูรายการ Unsure แล้วตรวจด้วยตาก่อน จะได้ไม่ประกาศผิด
+  </div>
+
+  <h2><span class="num">4</span>ความปลอดภัยของ Key + วิธีเปลี่ยน <span style="font-size:14px;color:#b91c1c;font-weight:700;">(กัน usage)</span></h2>
+  <p>key ทั้งหมดเก็บอยู่ในแท็บ <b>⚙️ Sudota Config</b> (B4 = Groq, B8 = Gemini) ซึ่ง <b>ทุกคนที่ "แก้ไข" ชีตนี้ได้ จะเห็น key และใช้ quota ได้</b>
+  ดังนั้นถ้าอยากกันไม่ให้คนอื่นมาใช้ quota ของคุณ ให้ทำตามนี้:</p>
+
+  <h3>วิธีที่แนะนำที่สุด — ต่างคนต่าง Key</h3>
+  <ul>
+    <li>ให้แต่ละทีม/แต่ละคน <b>ทำสำเนาชีตของตัวเอง</b> (File → Make a copy — สคริปต์จะติดไปด้วย) แล้วใส่ <b>key ฟรีของตัวเอง</b> ที่ B4/B8</li>
+    <li>key ทั้ง Groq และ Gemini เป็นของฟรี สมัคร 2 นาที ไม่ต้องใช้บัตร → ทุกคนมี quota ของตัวเอง ไม่ต้องแย่งกัน</li>
+    <li><b>อย่าใส่ key ส่วนตัวของคุณ</b> ลงในชีตที่มีคนแก้ไขได้หลายคน</li>
+  </ul>
+
+  <h3>ถ้าจำเป็นต้องใช้ชีตเดียวร่วมกัน</h3>
+  <ul>
+    <li>จำกัดสิทธิ์เป็น <b>"ดูอย่างเดียว (Viewer)"</b> สำหรับคนที่ไม่ต้องรันเครื่องมือ — คน Viewer จะเห็น/ใช้ key ไม่ได้</li>
+    <li>ให้สิทธิ์ <b>Editor</b> เฉพาะคนที่ไว้ใจและต้องรันจริงเท่านั้น</li>
+  </ul>
+
+  <h3>วิธีเปลี่ยน / เพิกถอน Key</h3>
+  <ol>
+    <li><b>เปลี่ยน key:</b> แก้ค่าที่เซลล์ B4 (Groq) หรือ B8 (Gemini) ได้เลย — เครื่องมืออ่านค่าใหม่ทุกครั้งที่รัน ไม่ต้องตั้งค่าอะไรเพิ่ม</li>
+    <li><b>ถ้าสงสัยว่า key รั่ว/ถูกใช้โดยไม่ได้รับอนุญาต:</b> ไปที่หน้าเว็บของผู้ให้บริการแล้ว <b>ลบ/เพิกถอน (revoke)</b> key เดิมทิ้ง แล้วสร้างใหม่
+      <ul>
+        <li>Groq: <code>console.groq.com/keys</code></li>
+        <li>Gemini: <code>aistudio.google.com/apikey</code></li>
+      </ul>
+      พอ revoke แล้ว key เดิมจะใช้ไม่ได้ทันที ต่อให้ใครก๊อปไปก็ใช้ไม่ได้ — จากนั้นวาง key ใหม่ที่ B4/B8</li>
+  </ol>
+  <div class="danger">
+    <b>ห้ามทำ</b> อย่าโพสต์ key ลงในแชตสาธารณะ, สกรีนช็อตที่เห็น key, หรือส่งไฟล์ที่มี key ให้คนนอกทีม —
+    ถ้าเผลอหลุด ให้ revoke แล้วออกใหม่ทันที (ฟรี)
+  </div>
+
+  <h2><span class="num">5</span>Supabase Key (สำหรับหน้าประกาศรางวัล — ขั้นสูง)</h2>
+  <p>ค่า Supabase ฝังอยู่ในโค้ด <code>Sudota-Query.gs</code> (บล็อก <code>SUDOTA.supabase</code>): มี <code>url</code>, <code>key</code> (publishable),
+  และ <code>writeToken</code> ซึ่งเป็นรหัสที่อนุญาตให้ "เขียน" ขึ้นหน้าประกาศรางวัล</p>
+  <div class="info">
+    <b>ต่างจาก AI Key ตรงไหน</b>
+    ค่า Supabase ชุดนี้เป็น <b>ค่าสาธารณะ</b> ชุดเดียวกับที่อยู่ในหน้า <code>reward-admin.html</code> อยู่แล้ว —
+    ไม่ได้คิดค่าใช้จ่ายตาม usage แบบ AI key จึงไม่ใช่ความเสี่ยงเรื่อง "โดนใช้ quota" โดยตรง แต่เป็นเรื่องสิทธิ์เขียนหน้าประกาศ
+  </div>
+  <p>ถ้าต้องการ <b>เปลี่ยน writeToken</b> เพื่อไม่ให้คนเดิมเขียนหน้าประกาศได้อีก ต้องแก้ให้ตรงกัน 2 ที่:</p>
+  <ol>
+    <li>ฝั่ง <b>Supabase</b> (นโยบาย/ฟังก์ชันที่ตรวจ token)</li>
+    <li>ค่า <code>writeToken</code> ในโค้ดทั้ง <code>Sudota-Query.gs</code> และ <code>reward-admin.html</code> ให้เป็นค่าใหม่เหมือนกัน</li>
+  </ol>
+  <div class="warn">
+    <b>แนะนำ</b> ขั้นตอนนี้กระทบทั้งเครื่องมือและหน้าประกาศพร้อมกัน ถ้าจะเปลี่ยนจริง ให้ทำร่วมกับผู้ดูแลระบบ (หรือทักผมมาช่วยทำ)
+    และ <b>ห้ามนำ Supabase service_role key ใส่ลงในโค้ดเด็ดขาด</b>
+  </div>
+
+  <h2><span class="num">6</span>ปัญหาที่พบบ่อย</h2>
+  <table>
+    <tr><th>อาการ</th><th>วิธีแก้</th></tr>
+    <tr><td>ขึ้น <b>rate-limit (429)</b> ตอนตรวจรูป</td><td>ปกติของ tier ฟรี — เครื่องมือจะหน่วงและลองใหม่ให้เอง ที่เหลือกดปุ่ม <b>🔁 Retry</b> / หรือสลับไปใช้ Gemini ซึ่งโควตาสูงกว่า</td></tr>
+    <tr><td>ขึ้น <b>gemini error 404</b></td><td>เครื่องมือจะหา model ที่ใช้ได้ให้อัตโนมัติ ถ้ายังขึ้น <b>key rejected (400/403)</b> = key ผิด → ใส่ key Gemini ใหม่ที่ B8</td></tr>
+    <tr><td>ตรวจรูป <b>ช้า</b></td><td>ปกติ ~9 วิ/รูป เพราะต้องโหลดรูปจาก Facebook ทีละรูป — ปล่อยรันทิ้งไว้ได้ ความคืบหน้าถูกบันทึก กด Stop/รันต่อได้</td></tr>
+    <tr><td>ไม่เห็นเมนู <b>⚡ Kudsan Tools</b></td><td>ตรวจว่าวางไฟล์ครบ + แก้ onOpen แล้ว → บันทึก → รีเฟรชชีต 1 ครั้ง</td></tr>
+    <tr><td>วงล้อขึ้น <b>ไม่แน่ใจเยอะ (สีเหลือง)</b></td><td>กดดูรายการ Unsure แล้วตรวจด้วยตาก่อน export/publish</td></tr>
+  </table>
+
+  <div class="foot">
+    Kudsan Tools — Sudota One-Click · TOSM Extreme &nbsp;|&nbsp; เมนู: ⚡ Kudsan Tools &nbsp;|&nbsp; Key: แท็บ ⚙️ Sudota Config (B4 = Groq, B8 = Gemini)
+  </div>
+
+</div>
+</body>
+</html>

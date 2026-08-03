@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>Kudsan Tools — ภาพรวมการทำงาน</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  :root{
+    --gold:#fbbf24; --teal:#2dd4bf; --violet:#a78bfa; --rose:#fb7185; --sky:#38bdf8;
+    --ink:#f8fafc; --sub:#cbd5e1; --mut:#8b95a7;
+    --card:rgba(255,255,255,.055); --line:rgba(255,255,255,.12);
+  }
+  html,body{ font-family:'Noto Sans Thai','Sarabun','Loma',system-ui,sans-serif; }
+  .canvas{
+    width:1600px; height:1000px; position:relative; overflow:hidden;
+    background:
+      radial-gradient(1200px 700px at 82% -8%, rgba(251,191,36,.14), transparent 60%),
+      radial-gradient(1000px 700px at 8% 108%, rgba(45,212,191,.12), transparent 55%),
+      linear-gradient(150deg,#0b1020 0%,#141033 52%,#1b1440 100%);
+    color:var(--ink); padding:52px 64px 44px;
+  }
+  .head{ display:flex; align-items:center; justify-content:space-between; }
+  .brand{ display:flex; align-items:center; gap:18px; }
+  .mark{
+    width:70px; height:70px; border-radius:18px; display:flex; align-items:center; justify-content:center;
+    font-size:38px; background:linear-gradient(140deg,#fbbf24,#f59e0b); box-shadow:0 10px 30px rgba(245,158,11,.4);
+  }
+  .brand h1{ font-size:44px; font-weight:800; letter-spacing:.5px; line-height:1; }
+  .brand p{ font-size:17px; color:var(--sub); margin-top:9px; font-weight:500; }
+  .badge{
+    text-align:right; font-size:14px; color:var(--mut); border:1px solid var(--line);
+    border-radius:12px; padding:12px 18px; background:var(--card); line-height:1.7;
+  }
+  .badge b{ color:var(--gold); font-size:15px; }
+  .lead{ margin:30px 0 8px; font-size:21px; line-height:1.65; color:var(--sub); max-width:1240px; }
+  .lead b{ color:var(--ink); font-weight:700; }
+  .lead .hl{ color:var(--teal); font-weight:700; }
+  .flow{ display:flex; align-items:stretch; gap:0; margin-top:28px; }
+  .step{
+    flex:1; background:var(--card); border:1px solid var(--line); border-radius:18px;
+    padding:24px 22px 22px; position:relative; min-height:266px;
+  }
+  .step .n{
+    position:absolute; top:-15px; left:22px; width:32px; height:32px; border-radius:9px;
+    background:#0b1020; border:1px solid var(--line); display:flex; align-items:center; justify-content:center;
+    font-size:15px; font-weight:800; color:var(--gold);
+  }
+  .step .ico{ font-size:40px; }
+  .step h3{ font-size:22px; font-weight:700; margin:12px 0 9px; letter-spacing:.2px; }
+  .step p{ font-size:15.5px; line-height:1.65; color:var(--sub); }
+  .step .tags{ margin-top:12px; display:flex; flex-wrap:wrap; gap:6px; }
+  .tag{ font-size:12.5px; font-weight:600; padding:4px 11px; border-radius:20px; }
+  .t-ai{ background:rgba(45,212,191,.16); color:#5eead4; }
+  .t-gold{ background:rgba(251,191,36,.16); color:#fcd34d; }
+  .t-vio{ background:rgba(167,139,250,.18); color:#c4b5fd; }
+  .t-teal{ background:rgba(45,212,191,.16); color:#5eead4; }
+  .arrow{ display:flex; align-items:center; justify-content:center; width:34px; color:var(--mut); font-size:26px; flex:0 0 34px; }
+  .step.accent{ border-color:rgba(251,191,36,.5); background:linear-gradient(180deg,rgba(251,191,36,.10),rgba(255,255,255,.04)); }
+  .outs{ display:flex; gap:20px; margin-top:24px; }
+  .out{ flex:1; display:flex; gap:16px; align-items:center; border-radius:16px; padding:18px 24px; border:1px solid var(--line); }
+  .out.o1{ background:linear-gradient(120deg,rgba(56,189,248,.14),rgba(255,255,255,.03)); }
+  .out.o2{ background:linear-gradient(120deg,rgba(251,113,133,.14),rgba(255,255,255,.03)); }
+  .out .oi{ font-size:34px; }
+  .out h4{ font-size:19px; font-weight:700; margin-bottom:4px; }
+  .out span{ font-size:14.5px; color:var(--sub); line-height:1.55; }
+  .out .k{ font-size:12px; color:var(--mut); letter-spacing:1px; font-weight:700; }
+  .why{ display:flex; gap:16px; margin-top:24px; }
+  .why div{ flex:1; background:var(--card); border:1px solid var(--line); border-radius:14px; padding:15px 18px; }
+  .why .big{ font-size:23px; font-weight:800; }
+  .why .g{ color:var(--gold); } .why .t{ color:var(--teal); } .why .v{ color:var(--violet); } .why .r{ color:var(--rose); }
+  .why small{ display:block; font-size:13px; color:var(--sub); margin-top:5px; line-height:1.55; }
+  .foot{ position:absolute; bottom:20px; left:64px; right:64px; display:flex; justify-content:space-between;
+    font-size:13.5px; color:var(--mut); border-top:1px solid var(--line); padding-top:14px; }
+  .foot b{ color:var(--sub); }
+</style>
+</head>
+<body>
+<div class="canvas">
+
+  <div class="head">
+    <div class="brand">
+      <div class="mark">⚡</div>
+      <div>
+        <h1>Kudsan Tools</h1>
+        <p>ระบบคัดกรองกิจกรรมอัตโนมัติ คลิกเดียวจบ · TOSM Extreme</p>
+      </div>
+    </div>
+    <div class="badge">ทำงานบน <b>Google Sheets</b><br>ขับเคลื่อนด้วย <b>AI ฟรี</b> — 0 บาท/กิจกรรม</div>
+  </div>
+
+  <p class="lead">
+    เปลี่ยนคอมเมนต์จากกิจกรรมบน Facebook ให้กลายเป็น <b>รายชื่อผู้ได้รับรางวัลที่ตรวจสอบแล้ว</b>
+    และ <span class="hl">หน้าประกาศรางวัลสด</span> — โดยอัตโนมัติ จากเดิมที่ต้องนั่งเช็กรายชื่อเป็นชั่วโมง
+    เหลือแค่ <b>คลิกเดียว</b> คัดกรองและตรวจรูปด้วย AI
+  </p>
+
+  <div class="flow">
+    <div class="step">
+      <div class="n">1</div>
+      <div class="ico">📥</div>
+      <h3>ดึงข้อมูล</h3>
+      <p>ส่วนขยาย Sudota ดึงคอมเมนต์ทั้งหมดจากโพสต์กิจกรรมบน Facebook เข้าสู่ชีต</p>
+      <div class="tags"><span class="tag t-vio">นำเข้าอัตโนมัติ</span></div>
+    </div>
+    <div class="arrow">➜</div>
+
+    <div class="step">
+      <div class="n">2</div>
+      <div class="ico">🧠</div>
+      <h3>เข้าใจเงื่อนไข</h3>
+      <p>AI อ่านโพสต์กิจกรรมแล้ววิเคราะห์กติกาเอง — ใครผ่านเกณฑ์ มีสุ่มรางวัลไหม ต้องแนบรูปหรือไม่</p>
+      <div class="tags"><span class="tag t-ai">AI · Groq</span></div>
+    </div>
+    <div class="arrow">➜</div>
+
+    <div class="step">
+      <div class="n">3</div>
+      <div class="ico">🔎</div>
+      <h3>คัดกรอง &amp; ตรวจสอบ</h3>
+      <p>ตรวจทุกรายการ — โค้ด AID คำสำคัญ และ AI ตรวจรูปว่าตรงตามเงื่อนไข แล้วแยกเป็น 2 กลุ่ม</p>
+      <div class="tags"><span class="tag t-ai">AI ตรวจรูป · Gemini</span><span class="tag t-gold">🎲 สุ่ม</span><span class="tag t-teal">✅ ทั้งหมด</span></div>
+    </div>
+    <div class="arrow">➜</div>
+
+    <div class="step">
+      <div class="n">4</div>
+      <div class="ico">📊</div>
+      <h3>ตรวจความมั่นใจ</h3>
+      <p>วงล้อ "% ใช้ได้" แสดงจำนวนที่ยืนยันแล้ว เทียบกับที่ไม่แน่ใจ ในพริบตา — ไม่ส่งออกจนกว่าจะน่าเชื่อถือ</p>
+      <div class="tags"><span class="tag t-vio">จุดตรวจก่อนส่ง</span></div>
+    </div>
+    <div class="arrow">➜</div>
+
+    <div class="step accent">
+      <div class="n">5</div>
+      <div class="ico">🚀</div>
+      <h3>ส่งออก</h3>
+      <p>คลิกเดียวได้ผลลัพธ์ทั้ง 2 อย่าง — สเปรดชีตสำหรับทีม และหน้าประกาศรางวัลสาธารณะ</p>
+      <div class="tags"><span class="tag t-gold">2 ผลลัพธ์</span></div>
+    </div>
+  </div>
+
+  <div class="outs">
+    <div class="out o1">
+      <div class="oi">📋</div>
+      <div>
+        <div class="k">ผลลัพธ์ 1</div>
+        <h4>สเปรดชีตคัดรายชื่อ</h4>
+        <span>แท็บรายชื่อผู้ได้รางวัลที่พร้อมส่งให้ทีมจัดของรางวัลทันที</span>
+      </div>
+    </div>
+    <div class="out o2">
+      <div class="oi">🖥️</div>
+      <div>
+        <div class="k">ผลลัพธ์ 2</div>
+        <h4>หน้าประกาศรางวัลสด</h4>
+        <span>ประกาศผู้ได้รางวัลโดยปิดบังชื่อ — ซ่อนไว้จนกว่าจะถึงเวลาประกาศจริง</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="why">
+    <div><div class="big g">คลิกเดียว</div><small>จากเช็กมือเป็นชั่วโมง เหลือแค่ไม่กี่นาที</small></div>
+    <div><div class="big t">0 บาท</div><small>ใช้ Groq + Gemini AI ฟรี ไม่มีค่าใช้จ่าย</small></div>
+    <div><div class="big v">AI ตรวจรูป</div><small>มองเห็นรูปหลักฐานที่คนเช็กเองอาจพลาด</small></div>
+    <div><div class="big r">ปลอดภัยตามดีไซน์</div><small>ปิดบังชื่อ · ประกาศแบบซ่อนจนถึงเวลาเผย</small></div>
+  </div>
+
+  <div class="foot">
+    <span>Kudsan Tools — Sudota One-Click · TOSM Extreme</span>
+    <span>คอมเมนต์ Facebook → คัดกรองด้วย AI → <b>รายชื่อผู้ได้รางวัล + หน้าประกาศสด</b></span>
+  </div>
+
+</div>
+</body>
+</html>
